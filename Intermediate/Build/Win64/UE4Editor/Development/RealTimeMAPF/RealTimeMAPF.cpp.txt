@@ -1,0 +1,2 @@
+C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\Definitions.RealTimeMAPF.h
+C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Source\RealTimeMAPF\Public\RealTimeMAPF.h

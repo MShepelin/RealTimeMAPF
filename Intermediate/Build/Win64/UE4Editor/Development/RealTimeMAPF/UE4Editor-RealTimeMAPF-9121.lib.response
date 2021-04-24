@@ -1,0 +1,14 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UE4Editor-RealTimeMAPF-9121.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Intermediate\Build\Win64\GoodBotsEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\Module.RealTimeMAPF.cpp.obj"
+"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\Module.RealTimeMAPF.gen.cpp.obj"
+"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\Default.rc2.res"
+/OUT:"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\UE4Editor-RealTimeMAPF-9121.lib"
+/INCLUDE:IMPLEMENT_MODULE_RealTimeMAPF
