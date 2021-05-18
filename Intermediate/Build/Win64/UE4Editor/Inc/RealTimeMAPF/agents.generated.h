@@ -13,7 +13,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define REALTIMEMAPF_agents_generated_h
 
-#define GoodBots_Plugins_RealTimeMAPF_Source_RealTimeMAPF_Public_agents_h_16_GENERATED_BODY \
+#define GoodBots_Plugins_RealTimeMAPF_Source_RealTimeMAPF_Public_agents_h_17_GENERATED_BODY \
 	friend struct Z_Construct_UScriptStruct_FAgentTask_Statics; \
 	REALTIMEMAPF_API static class UScriptStruct* StaticStruct();
 

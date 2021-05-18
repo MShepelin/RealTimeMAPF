@@ -87,21 +87,21 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFConfig
 	}
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UScriptStruct_FConfig_Statics::NewProp_HeuristicWeight_MetaData[] = {
-		{ "Category", "EnvironmentConfiguration" },
+		{ "Category", "Algorithm Options" },
 		{ "ModuleRelativePath", "Public/Config.h" },
 	};
 #endif
 	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UScriptStruct_FConfig_Statics::NewProp_HeuristicWeight = { "HeuristicWeight", nullptr, (EPropertyFlags)0x0010000000000005, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(FConfig, HeuristicWeight), METADATA_PARAMS(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_HeuristicWeight_MetaData, UE_ARRAY_COUNT(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_HeuristicWeight_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UScriptStruct_FConfig_Statics::NewProp_MetricType_MetaData[] = {
-		{ "Category", "EnvironmentConfiguration" },
+		{ "Category", "Algorithm Options" },
 		{ "ModuleRelativePath", "Public/Config.h" },
 	};
 #endif
 	const UE4CodeGen_Private::FBytePropertyParams Z_Construct_UScriptStruct_FConfig_Statics::NewProp_MetricType = { "MetricType", nullptr, (EPropertyFlags)0x0010000000000005, UE4CodeGen_Private::EPropertyGenFlags::Byte, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(FConfig, MetricType), nullptr, METADATA_PARAMS(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_MetricType_MetaData, UE_ARRAY_COUNT(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_MetricType_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UScriptStruct_FConfig_Statics::NewProp_BreakingTies_MetaData[] = {
-		{ "Category", "EnvironmentConfiguration" },
+		{ "Category", "Algorithm Options" },
 		{ "Comment", "// true for g-max\n" },
 		{ "ModuleRelativePath", "Public/Config.h" },
 		{ "ToolTip", "true for g-max" },
@@ -114,7 +114,7 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFConfig
 	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UScriptStruct_FConfig_Statics::NewProp_BreakingTies = { "BreakingTies", nullptr, (EPropertyFlags)0x0010000000000005, UE4CodeGen_Private::EPropertyGenFlags::Bool , RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(uint8), sizeof(FConfig), &Z_Construct_UScriptStruct_FConfig_Statics::NewProp_BreakingTies_SetBit, METADATA_PARAMS(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_BreakingTies_MetaData, UE_ARRAY_COUNT(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_BreakingTies_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UScriptStruct_FConfig_Statics::NewProp_AllowSqueeze_MetaData[] = {
-		{ "Category", "EnvironmentConfiguration" },
+		{ "Category", "Environment" },
 		{ "ModuleRelativePath", "Public/Config.h" },
 	};
 #endif
@@ -125,7 +125,7 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFConfig
 	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UScriptStruct_FConfig_Statics::NewProp_AllowSqueeze = { "AllowSqueeze", nullptr, (EPropertyFlags)0x0010000000000005, UE4CodeGen_Private::EPropertyGenFlags::Bool , RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(uint8), sizeof(FConfig), &Z_Construct_UScriptStruct_FConfig_Statics::NewProp_AllowSqueeze_SetBit, METADATA_PARAMS(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_AllowSqueeze_MetaData, UE_ARRAY_COUNT(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_AllowSqueeze_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UScriptStruct_FConfig_Statics::NewProp_CutCorners_MetaData[] = {
-		{ "Category", "EnvironmentConfiguration" },
+		{ "Category", "Environment" },
 		{ "ModuleRelativePath", "Public/Config.h" },
 	};
 #endif
@@ -136,7 +136,7 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFConfig
 	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UScriptStruct_FConfig_Statics::NewProp_CutCorners = { "CutCorners", nullptr, (EPropertyFlags)0x0010000000000005, UE4CodeGen_Private::EPropertyGenFlags::Bool , RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(uint8), sizeof(FConfig), &Z_Construct_UScriptStruct_FConfig_Statics::NewProp_CutCorners_SetBit, METADATA_PARAMS(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_CutCorners_MetaData, UE_ARRAY_COUNT(Z_Construct_UScriptStruct_FConfig_Statics::NewProp_CutCorners_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UScriptStruct_FConfig_Statics::NewProp_AllowDiagonal_MetaData[] = {
-		{ "Category", "EnvironmentConfiguration" },
+		{ "Category", "Environment" },
 		{ "ModuleRelativePath", "Public/Config.h" },
 	};
 #endif
@@ -181,7 +181,7 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFConfig
 		}
 		return ReturnStruct;
 	}
-	uint32 Get_Z_Construct_UScriptStruct_FConfig_Hash() { return 3618899607U; }
+	uint32 Get_Z_Construct_UScriptStruct_FConfig_Hash() { return 2957740714U; }
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 #ifdef _MSC_VER
 #pragma warning (pop)

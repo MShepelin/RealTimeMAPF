@@ -20,7 +20,7 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 	COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FVector();
 	REALTIMEMAPF_API UClass* Z_Construct_UClass_ABasicBot_NoRegister();
 	REALTIMEMAPF_API UScriptStruct* Z_Construct_UScriptStruct_FAgentTask();
-	REALTIMEMAPF_API UClass* Z_Construct_UClass_AGrid_NoRegister();
+	REALTIMEMAPF_API UClass* Z_Construct_UClass_ASolver_NoRegister();
 	COREUOBJECT_API UClass* Z_Construct_UClass_UClass();
 	REALTIMEMAPF_API UClass* Z_Construct_UClass_UMapData_NoRegister();
 	ENGINE_API UClass* Z_Construct_UClass_AActor_NoRegister();
@@ -41,18 +41,32 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 		*(FVector*)Z_Param__Result=P_THIS->TaskToLocation(Z_Param_GridX,Z_Param_GridY);
 		P_NATIVE_END;
 	}
-	DEFINE_FUNCTION(ABasicAICenter::execSectionPlan)
-	{
-		P_FINISH;
-		P_NATIVE_BEGIN;
-		P_THIS->SectionPlan();
-		P_NATIVE_END;
-	}
 	DEFINE_FUNCTION(ABasicAICenter::execAgentFinished)
 	{
 		P_FINISH;
 		P_NATIVE_BEGIN;
 		P_THIS->AgentFinished();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(ABasicAICenter::execSectionReady)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SectionReady();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(ABasicAICenter::execPreplanReady)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->PreplanReady();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(ABasicAICenter::execReadyToMoveAgents)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->ReadyToMoveAgents();
 		P_NATIVE_END;
 	}
 	void ABasicAICenter::StaticRegisterNativesABasicAICenter()
@@ -61,7 +75,9 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 		static const FNameNativePtrPair Funcs[] = {
 			{ "AgentFinished", &ABasicAICenter::execAgentFinished },
 			{ "BeginPlan", &ABasicAICenter::execBeginPlan },
-			{ "SectionPlan", &ABasicAICenter::execSectionPlan },
+			{ "PreplanReady", &ABasicAICenter::execPreplanReady },
+			{ "ReadyToMoveAgents", &ABasicAICenter::execReadyToMoveAgents },
+			{ "SectionReady", &ABasicAICenter::execSectionReady },
 			{ "TaskToLocation", &ABasicAICenter::execTaskToLocation },
 		};
 		FNativeFunctionRegistrar::RegisterFunctions(Class, Funcs, UE_ARRAY_COUNT(Funcs));
@@ -111,7 +127,7 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 		}
 		return ReturnFunction;
 	}
-	struct Z_Construct_UFunction_ABasicAICenter_SectionPlan_Statics
+	struct Z_Construct_UFunction_ABasicAICenter_PreplanReady_Statics
 	{
 #if WITH_METADATA
 		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
@@ -119,18 +135,61 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 		static const UE4CodeGen_Private::FFunctionParams FuncParams;
 	};
 #if WITH_METADATA
-	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_ABasicAICenter_SectionPlan_Statics::Function_MetaDataParams[] = {
-		{ "CallInEditor", "true" },
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_ABasicAICenter_PreplanReady_Statics::Function_MetaDataParams[] = {
 		{ "ModuleRelativePath", "Public/BasicAICenter.h" },
 	};
 #endif
-	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_ABasicAICenter_SectionPlan_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_ABasicAICenter, nullptr, "SectionPlan", nullptr, nullptr, 0, nullptr, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_ABasicAICenter_SectionPlan_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_ABasicAICenter_SectionPlan_Statics::Function_MetaDataParams)) };
-	UFunction* Z_Construct_UFunction_ABasicAICenter_SectionPlan()
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_ABasicAICenter_PreplanReady_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_ABasicAICenter, nullptr, "PreplanReady", nullptr, nullptr, 0, nullptr, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00080401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_ABasicAICenter_PreplanReady_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_ABasicAICenter_PreplanReady_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_ABasicAICenter_PreplanReady()
 	{
 		static UFunction* ReturnFunction = nullptr;
 		if (!ReturnFunction)
 		{
-			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_ABasicAICenter_SectionPlan_Statics::FuncParams);
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_ABasicAICenter_PreplanReady_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_ABasicAICenter_ReadyToMoveAgents_Statics
+	{
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_ABasicAICenter_ReadyToMoveAgents_Statics::Function_MetaDataParams[] = {
+		{ "ModuleRelativePath", "Public/BasicAICenter.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_ABasicAICenter_ReadyToMoveAgents_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_ABasicAICenter, nullptr, "ReadyToMoveAgents", nullptr, nullptr, 0, nullptr, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00080401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_ABasicAICenter_ReadyToMoveAgents_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_ABasicAICenter_ReadyToMoveAgents_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_ABasicAICenter_ReadyToMoveAgents()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_ABasicAICenter_ReadyToMoveAgents_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_ABasicAICenter_SectionReady_Statics
+	{
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_ABasicAICenter_SectionReady_Statics::Function_MetaDataParams[] = {
+		{ "ModuleRelativePath", "Public/BasicAICenter.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_ABasicAICenter_SectionReady_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_ABasicAICenter, nullptr, "SectionReady", nullptr, nullptr, 0, nullptr, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00080401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_ABasicAICenter_SectionReady_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_ABasicAICenter_SectionReady_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_ABasicAICenter_SectionReady()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_ABasicAICenter_SectionReady_Statics::FuncParams);
 		}
 		return ReturnFunction;
 	}
@@ -186,6 +245,16 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 		static const UE4CodeGen_Private::FMetaDataPairParam Class_MetaDataParams[];
 #endif
 #if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_SectionPlanFound_MetaData[];
+#endif
+		static void NewProp_SectionPlanFound_SetBit(void* Obj);
+		static const UE4CodeGen_Private::FBoolPropertyParams NewProp_SectionPlanFound;
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_AgentFinishedMovement_MetaData[];
+#endif
+		static void NewProp_AgentFinishedMovement_SetBit(void* Obj);
+		static const UE4CodeGen_Private::FBoolPropertyParams NewProp_AgentFinishedMovement;
+#if WITH_METADATA
 		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_AgentIDs_MetaData[];
 #endif
 		static const UE4CodeGen_Private::FArrayPropertyParams NewProp_AgentIDs;
@@ -239,7 +308,9 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 	const FClassFunctionLinkInfo Z_Construct_UClass_ABasicAICenter_Statics::FuncInfo[] = {
 		{ &Z_Construct_UFunction_ABasicAICenter_AgentFinished, "AgentFinished" }, // 851028580
 		{ &Z_Construct_UFunction_ABasicAICenter_BeginPlan, "BeginPlan" }, // 1203958451
-		{ &Z_Construct_UFunction_ABasicAICenter_SectionPlan, "SectionPlan" }, // 3890007293
+		{ &Z_Construct_UFunction_ABasicAICenter_PreplanReady, "PreplanReady" }, // 4170820390
+		{ &Z_Construct_UFunction_ABasicAICenter_ReadyToMoveAgents, "ReadyToMoveAgents" }, // 1459094921
+		{ &Z_Construct_UFunction_ABasicAICenter_SectionReady, "SectionReady" }, // 3810485435
 		{ &Z_Construct_UFunction_ABasicAICenter_TaskToLocation, "TaskToLocation" }, // 2418818343
 	};
 #if WITH_METADATA
@@ -248,6 +319,26 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 		{ "ModuleRelativePath", "Public/BasicAICenter.h" },
 	};
 #endif
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_ABasicAICenter_Statics::NewProp_SectionPlanFound_MetaData[] = {
+		{ "ModuleRelativePath", "Public/BasicAICenter.h" },
+	};
+#endif
+	void Z_Construct_UClass_ABasicAICenter_Statics::NewProp_SectionPlanFound_SetBit(void* Obj)
+	{
+		((ABasicAICenter*)Obj)->SectionPlanFound = 1;
+	}
+	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UClass_ABasicAICenter_Statics::NewProp_SectionPlanFound = { "SectionPlanFound", nullptr, (EPropertyFlags)0x0020080000000000, UE4CodeGen_Private::EPropertyGenFlags::Bool , RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(uint8), sizeof(ABasicAICenter), &Z_Construct_UClass_ABasicAICenter_Statics::NewProp_SectionPlanFound_SetBit, METADATA_PARAMS(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_SectionPlanFound_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_SectionPlanFound_MetaData)) };
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentFinishedMovement_MetaData[] = {
+		{ "ModuleRelativePath", "Public/BasicAICenter.h" },
+	};
+#endif
+	void Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentFinishedMovement_SetBit(void* Obj)
+	{
+		((ABasicAICenter*)Obj)->AgentFinishedMovement = 1;
+	}
+	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentFinishedMovement = { "AgentFinishedMovement", nullptr, (EPropertyFlags)0x0020080000000000, UE4CodeGen_Private::EPropertyGenFlags::Bool , RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(uint8), sizeof(ABasicAICenter), &Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentFinishedMovement_SetBit, METADATA_PARAMS(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentFinishedMovement_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentFinishedMovement_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentIDs_MetaData[] = {
 		{ "ModuleRelativePath", "Public/BasicAICenter.h" },
@@ -296,7 +387,7 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 		{ "ModuleRelativePath", "Public/BasicAICenter.h" },
 	};
 #endif
-	const UE4CodeGen_Private::FObjectPropertyParams Z_Construct_UClass_ABasicAICenter_Statics::NewProp_Solver = { "Solver", nullptr, (EPropertyFlags)0x0020080000000001, UE4CodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(ABasicAICenter, Solver), Z_Construct_UClass_AGrid_NoRegister, METADATA_PARAMS(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_Solver_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_Solver_MetaData)) };
+	const UE4CodeGen_Private::FObjectPropertyParams Z_Construct_UClass_ABasicAICenter_Statics::NewProp_Solver = { "Solver", nullptr, (EPropertyFlags)0x0020080000000001, UE4CodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(ABasicAICenter, Solver), Z_Construct_UClass_ASolver_NoRegister, METADATA_PARAMS(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_Solver_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_Solver_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_ABasicAICenter_Statics::NewProp_BotClass_MetaData[] = {
 		{ "Category", "BasicAICenter" },
@@ -319,6 +410,8 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 #endif
 	const UE4CodeGen_Private::FObjectPropertyParams Z_Construct_UClass_ABasicAICenter_Statics::NewProp_MapDataPointer = { "MapDataPointer", nullptr, (EPropertyFlags)0x0020080000000001, UE4CodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(ABasicAICenter, MapDataPointer), Z_Construct_UClass_AActor_NoRegister, METADATA_PARAMS(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_MapDataPointer_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_ABasicAICenter_Statics::NewProp_MapDataPointer_MetaData)) };
 	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UClass_ABasicAICenter_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_ABasicAICenter_Statics::NewProp_SectionPlanFound,
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentFinishedMovement,
 		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentIDs,
 		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_ABasicAICenter_Statics::NewProp_AgentIDs_Inner,
 		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_ABasicAICenter_Statics::NewProp_Bots,
@@ -360,7 +453,7 @@ void EmptyLinkFunctionForGeneratedCodeBasicAICenter() {}
 		}
 		return OuterClass;
 	}
-	IMPLEMENT_CLASS(ABasicAICenter, 2485186478);
+	IMPLEMENT_CLASS(ABasicAICenter, 433332913);
 	template<> REALTIMEMAPF_API UClass* StaticClass<ABasicAICenter>()
 	{
 		return ABasicAICenter::StaticClass();

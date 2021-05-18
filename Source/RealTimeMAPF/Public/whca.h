@@ -1,5 +1,6 @@
 #pragma once
 
+#include "HAL/ThreadSafeBool.h"
 #include <cassert>
 #include "agents.h"
 #include "agents_array.h"
@@ -13,67 +14,73 @@
 class WHCA : public MAPFSolverInterface<SpaceTimeCell>
 {
 protected:
-    std::unordered_set<SpaceTimeCell> reservation_;
+  std::unordered_set<SpaceTimeCell> reservation_;
 
-    GridSingleSearch space_solver_;
-    SpaceTimeSearch space_time_solver_;
+  GridSingleSearch space_solver_;
+  SpaceTimeSearch space_time_solver_;
 
-    std::unordered_map<int, AgentTask<SpaceTimeCell>> tasks_;
-    std::unordered_map<int, SearchResult<SpaceTimeCell>> results_;
-    std::unordered_map<int, std::vector<Node<SpaceTimeCell>>> paths_;
+  std::unordered_map<int, AgentTask<SpaceTimeCell>> tasks_;
+  std::unordered_map<int, SearchResult<SpaceTimeCell>> results_;
+  std::unordered_map<int, std::vector<Node<SpaceTimeCell>>> paths_;
 
 #ifdef ENABLE_VISUAL_LOG
-    std::unordered_map<int, FColor> AgentColors;
-    uint8 ColorDelta = 30;
-    FColor CurrentColor = FColor::Green;
+  std::unordered_map<int, FColor> AgentColors;
+  uint8 ColorDelta = 30;
+  FColor CurrentColor = FColor::Green;
 #endif // ENABLE_VISUAL_LOG
 
-    AgentsArray<SpaceTimeCell> agents_;
+  AgentsArray<SpaceTimeCell> agents_;
     
-    UObject* MapDataImplementer = nullptr;
-    IMapData* map_ = nullptr;
-    const FConfig* config_ = nullptr;
+  UObject* MapDataImplementer = nullptr;
+  IMapData* map_ = nullptr;
+  const FConfig* config_ = nullptr;
 
-    // If true before each planning agents will be reordered randomly
-    //unsigned int random_order : 1;
-    // Depth of cooperation
-    int depth_;
-    // Counter to move time and change the locations of agents
-    TTYPE extra_time_;
+  // If true before each planning agents will be reordered randomly
+  //unsigned int random_order : 1;
+  // Depth of cooperation
+  int depth_;
+  // Counter to move time and change the locations of agents
+  TTYPE extra_time_;
 
-    //int number_of_swaps_;
-    int search_section_;
-    int current_section_;
+  //int number_of_swaps_;
+  int search_section_;
+  int current_section_;
 
-    void ClearAgentReservation(int agent_ID);
+  FThreadSafeBool AbandonPlan{ false };
 
-    static bool IsBetween(TTYPE time, int old_time, int new_time);
+  void ClearAgentReservation(int agent_ID);
+
+  static bool IsBetween(TTYPE time, int old_time, int new_time);
 
 public:
-    WHCA();
+  WHCA();
+  virtual ~WHCA() {};
 
-    void SetRadius(float new_radius);
-    void SetSectionSize(int new_section_size);
-    float GetRadius() const;
-    void SetDepth(FTYPE new_depth);
-    int GetDepth() const;
-    const IMapData* GetMap() const;
+  void Abandon();
 
-    virtual void ResetConfiguration(IMapData* map, const FConfig& config, UObject* NewMapDataImplementer);
+  void SetRadius(float new_radius);
+  void SetSectionSize(int new_section_size);
+  float GetRadius() const;
+  void SetDepth(int new_depth);
+  int GetDepth() const;
+  const IMapData* GetMap() const;
+  int GetAgentsNum() const;
 
-    virtual int AddAgent(AgentTask<SpaceTimeCell> task) override;
+  virtual void ResetConfiguration(IMapData* map, const FConfig& config, UObject* NewMapDataImplementer);
 
-    virtual void RemoveAgent(int agent_ID) override;
+  virtual int AddAgent(AgentTask<SpaceTimeCell> task) override;
 
-    bool Plan(const UWorld * InWorld, const AActor *LogOwner);
+  virtual void RemoveAgent(int agent_ID) override;
 
-    SearchResult<SpaceTimeCell> GetPlan(int agent_ID) const;
+  bool Plan(const AActor *LogOwner);
 
-    bool GetNextMove(int agent_ID, SpaceTimeCell& from, SpaceTimeCell& to) const;
+  SearchResult<SpaceTimeCell> GetPlan(int agent_ID) const;
 
-    TArray<FAgentTask> GetTasks() const;
+  bool GetNextMove(int agent_ID, SpaceTimeCell& from, SpaceTimeCell& to) const;
 
-    void MoveTime(TTYPE delta_time);
+  TArray<FAgentTask> GetTasks() const;
 
-    const std::unordered_set<SpaceTimeCell>* GetResTable() const;
+  void MoveTime(TTYPE delta_time);
+
+  const std::unordered_set<SpaceTimeCell>* GetResTable() const;
 };

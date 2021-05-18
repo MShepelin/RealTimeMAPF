@@ -7,11 +7,11 @@
 			"BasicAICenter.cpp.obj",
 			"BasicBot.cpp.obj",
 			"environmentoptions.cpp.obj",
-			"Grid.cpp.obj",
 			"IntervalTower.cpp.obj",
 			"MapData.cpp.obj",
 			"nodes.cpp.obj",
 			"RealTimeMAPF.cpp.obj",
+			"Solver.cpp.obj",
 			"whca.cpp.obj"
 		],
 		"Module.RealTimeMAPF.gen.cpp.obj": [
@@ -19,10 +19,10 @@
 			"BasicAICenter.gen.cpp.obj",
 			"BasicBot.gen.cpp.obj",
 			"Config.gen.cpp.obj",
-			"Grid.gen.cpp.obj",
 			"IntervalTower.gen.cpp.obj",
 			"MapData.gen.cpp.obj",
-			"RealTimeMAPF.init.gen.cpp.obj"
+			"RealTimeMAPF.init.gen.cpp.obj",
+			"Solver.gen.cpp.obj"
 		]
 	}
 }

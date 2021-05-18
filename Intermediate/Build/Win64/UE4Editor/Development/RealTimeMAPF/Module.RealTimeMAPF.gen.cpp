@@ -3,7 +3,7 @@
 #include "C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/BasicAICenter.gen.cpp"
 #include "C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/BasicBot.gen.cpp"
 #include "C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/Config.gen.cpp"
-#include "C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/Grid.gen.cpp"
 #include "C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/IntervalTower.gen.cpp"
 #include "C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/MapData.gen.cpp"
 #include "C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/RealTimeMAPF.init.gen.cpp"
+#include "C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/Solver.gen.cpp"

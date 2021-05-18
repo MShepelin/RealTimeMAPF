@@ -35,6 +35,8 @@ protected:
     // Checks possible collisions if agents waits
     bool IsWaitCollision(SpaceTimeCell from) const;
 
+    virtual bool BreakGTie(NodeType* expanded_node, NodeType* other_node) const override;
+
 public:
     float GetRadius() const;
     void SetRadius(float new_radius);
@@ -50,4 +52,34 @@ public:
     void WritePath() const;
 
     static enum Move GetMove(SpaceTimeCell from, SpaceTimeCell to);
+
+
+#ifdef FULL_CHECK
+    bool CheckPath(std::vector<Node<SpaceTimeCell>>& agent_path)
+    {
+      if (agent_path.size() < 2) return true;
+
+      for (size_t i = agent_path.size() - 1; i >= 1; --i)
+      {
+        SpaceTimeCell from = agent_path.at(i).cell;
+        SpaceTimeCell to = agent_path.at(i - 1).cell;
+
+        if (!((to.i - from.i) && (to.j - from.j)))
+        {
+          if (to.i == from.i && from.j == to.j)
+          {
+            if (IsWaitCollision(from)) return false;
+          }
+          else
+          {
+            if (IsNondiagonalCollision(from, to)) return false;
+          }
+        }
+        else
+        {
+          if (options_.allowdiagonal && IsDiagonalCollision(from, to)) return false;
+        }
+      }
+    }
+#endif // FULL_CHECK
 };

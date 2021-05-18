@@ -25,52 +25,57 @@ template<typename CellType>
 class SingleSearch
 {
 public:
-    using NodeType = Node<CellType>;
-    using ResultType = SearchResult<CellType>;
+  using NodeType = Node<CellType>;
+  using ResultType = SearchResult<CellType>;
 
 protected:
-    NodesBinaryHeap<CellType> open_;
-    std::unordered_map<CellType, NodeType> nodes_;
-    std::vector<NodeType> lppath_, hppath_;
-    ResultType result_;
+  NodesBinaryHeap<CellType> open_;
+  std::unordered_map<CellType, NodeType> nodes_;
+  std::vector<NodeType> lppath_, hppath_;
+  ResultType result_;
 
-    EnvironmentOptions options_;
-    AgentTask<CellType> task_;
-    IMapData* map_ = nullptr;
-    UObject* MapDataImplementer = nullptr;
-    double heuristic_weight_ = 0;
+  EnvironmentOptions options_;
+  AgentTask<CellType> task_;
+  IMapData* map_ = nullptr;
+  UObject* MapDataImplementer = nullptr;
+  double heuristic_weight_ = 0;
 
 protected:
-    virtual void SetHeuristic(NodeType& node_to_edit) = 0;
+  virtual void SetHeuristic(NodeType& node_to_edit) = 0;
 
-    virtual void ExpandNode(NodeType* node_to_expand) = 0;
+  virtual void ExpandNode(NodeType* node_to_expand) = 0;
 
-    virtual void ExpandNodeMove(NodeType* node_to_expand, CellType destination);
+  virtual void ExpandNodeMove(NodeType* node_to_expand, CellType destination);
     
-    virtual const NodeType* CellIsReached(CellType cell) const;
+  virtual const NodeType* CellIsReached(CellType cell) const;
 
-    virtual bool NodeReachedCell(NodeType* node, CellType cell, FTYPE depth) const;
+  virtual bool NodeReachedCell(NodeType* node, CellType cell, FTYPE depth) const;
 
-    virtual const Node<CellType>* ReachCell(CellType cell, FTYPE depth = -1);
+  virtual const Node<CellType>* ReachCell(CellType cell, FTYPE depth = -1);
 
-    // Return -1 if the move isn't possible
-    // Otherwise returns the cost of the move
-    virtual FTYPE GetMoveCost(CellType from, CellType to) const = 0;
+  // Return -1 if the move isn't possible
+  // Otherwise returns the cost of the move
+  virtual FTYPE GetMoveCost(CellType from, CellType to) const = 0;
+
+  // Returns true if a path from expanded_node is more preferable then an existing path to other_node
+  virtual bool BreakGTie(NodeType* expanded_node, NodeType* other_node) const = 0;
 
 public:
-    void ResetConfiguration(IMapData* map, const FConfig& config, UObject* NewMapDataImplementer);
+  virtual ~SingleSearch() {};
 
-    const Node<CellType>* Plan(AgentTask<CellType> task, FTYPE depth = -1);
+  void ResetConfiguration(IMapData* map, const FConfig& config, UObject* NewMapDataImplementer);
+
+  const Node<CellType>* Plan(AgentTask<CellType> task, FTYPE depth = -1);
     
-    FTYPE GetGValue(CellType cell) const;
+  FTYPE GetGValue(CellType cell) const;
 
-    bool ContinueSearch(CellType cell);
+  bool ContinueSearch(CellType cell);
 
-    bool BuildPathTo(CellType cell);
+  bool BuildPathTo(CellType cell);
 
-    virtual void BuildCompactPath() = 0;
+  virtual void BuildCompactPath() = 0;
 
-    ResultType GetResult() const;
+  ResultType GetResult() const;
 };
 
 // --------------------------- //
@@ -246,9 +251,10 @@ void SingleSearch<CellType>::ExpandNodeMove(NodeType* node_to_expand, CellType d
         // Set the parential node.
         inserted_node.parent = node_to_expand;
     }
-    else
+    else if (potential_node->second.h >= 0)
     {
-        if (potential_node->second.h >= 0 && potential_node->second.g > node_to_expand->g + cost)
+        if ((potential_node->second.g == node_to_expand->g + cost && BreakGTie(node_to_expand, &potential_node->second)) ||
+          potential_node->second.g > node_to_expand->g + cost)
         {
             open_.DecreaseGValue(potential_node->second, node_to_expand->g + cost);
 

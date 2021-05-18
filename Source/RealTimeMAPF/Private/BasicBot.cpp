@@ -13,6 +13,7 @@ ABasicBot::ABasicBot()
 
   MovementTime = 1.;
   CurTime = 0.;
+  IsMoving = false;
 }
 
 // Called when the game starts or when spawned
@@ -26,7 +27,7 @@ void ABasicBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-  //if (!IsMoving) return; // TODO fix this
+  if (!IsMoving) return;
 
   CurTime += DeltaTime;
   if (CurTime >= MovementTime)
@@ -34,17 +35,14 @@ void ABasicBot::Tick(float DeltaTime)
     CurTime = MovementTime;
 
     if (AICenter) AICenter->AgentFinished();
-
-    
-    //IsMoving = false;
+ 
+    IsMoving = false;
   }
 
   SetActorLocation(FMath::Lerp(
-    StartLocation, 
-    EndLocation, 
+    StartLocation,
+    EndLocation,
     CurTime / MovementTime), false);
-
-  if (CurTime >= MovementTime) CurTime = 0;
 }
 
 void ABasicBot::SetAICenter(ABasicAICenter* Center)
@@ -63,7 +61,7 @@ void ABasicBot::MakeMove(FVector Start, FVector Finish)
   CurTime = 0.;
   StartLocation = Start;
   EndLocation = Finish;
-  //IsMoving = true;
+  IsMoving = true;
 
   if (!Start.Equals(Finish, 0.5))
   {

@@ -3,21 +3,21 @@ C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermedi
 C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\CoreUObject\Public\UObject/GeneratedCppIncludes.h
 C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\CoreUObject\Public\UObject/MetaData.h
 C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Source\RealTimeMAPF/Public/agents.h
+c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\gl_const.h
+C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime/Engine/Public/VisualLogger/VisualLogger.h
+C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Engine\Public\VisualLogger/VisualLoggerTypes.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\intermediate\build\win64\ue4editor\inc\realtimemapf\agents.generated.h
 C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/BasicAICenter.gen.cpp
 C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Source\RealTimeMAPF/Public/BasicAICenter.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\MapData.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\intermediate\build\win64\ue4editor\inc\realtimemapf\MapData.generated.h
-c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\Grid.h
+c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\Solver.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\whca.h
 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\cassert
 C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\assert.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\agents_array.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\searchresult.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\nodes.h
-c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\gl_const.h
-C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime/Engine/Public/VisualLogger/VisualLogger.h
-C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Engine\Public\VisualLogger/VisualLoggerTypes.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\mapf_interface.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\environmentoptions.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\Config.h
@@ -35,15 +35,16 @@ c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\re
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\source\realtimemapf\public\astar3d.h
 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\cassert
 C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\assert.h
-c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\intermediate\build\win64\ue4editor\inc\realtimemapf\Grid.generated.h
+C:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Misc/ScopeTryLock.h
+c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\intermediate\build\win64\ue4editor\inc\realtimemapf\Solver.generated.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\intermediate\build\win64\ue4editor\inc\realtimemapf\BasicAICenter.generated.h
 C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/BasicBot.gen.cpp
 C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Source\RealTimeMAPF/Public/BasicBot.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\intermediate\build\win64\ue4editor\inc\realtimemapf\BasicBot.generated.h
 C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/Config.gen.cpp
-C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/Grid.gen.cpp
 C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/IntervalTower.gen.cpp
 C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Source\RealTimeMAPF/Public/IntervalTower.h
 c:\users\mitya\documents\unreal projects\goodbots\plugins\realtimemapf\intermediate\build\win64\ue4editor\inc\realtimemapf\IntervalTower.generated.h
 C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/MapData.gen.cpp
 C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/RealTimeMAPF.init.gen.cpp
+C:/Users/Mitya/Documents/Unreal Projects/GoodBots/Plugins/RealTimeMAPF/Intermediate/Build/Win64/UE4Editor/Inc/RealTimeMAPF/Solver.gen.cpp

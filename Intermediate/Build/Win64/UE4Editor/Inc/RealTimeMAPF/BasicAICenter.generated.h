@@ -19,16 +19,20 @@ struct FVector;
  \
 	DECLARE_FUNCTION(execBeginPlan); \
 	DECLARE_FUNCTION(execTaskToLocation); \
-	DECLARE_FUNCTION(execSectionPlan); \
-	DECLARE_FUNCTION(execAgentFinished);
+	DECLARE_FUNCTION(execAgentFinished); \
+	DECLARE_FUNCTION(execSectionReady); \
+	DECLARE_FUNCTION(execPreplanReady); \
+	DECLARE_FUNCTION(execReadyToMoveAgents);
 
 
 #define GoodBots_Plugins_RealTimeMAPF_Source_RealTimeMAPF_Public_BasicAICenter_h_16_RPC_WRAPPERS_NO_PURE_DECLS \
  \
 	DECLARE_FUNCTION(execBeginPlan); \
 	DECLARE_FUNCTION(execTaskToLocation); \
-	DECLARE_FUNCTION(execSectionPlan); \
-	DECLARE_FUNCTION(execAgentFinished);
+	DECLARE_FUNCTION(execAgentFinished); \
+	DECLARE_FUNCTION(execSectionReady); \
+	DECLARE_FUNCTION(execPreplanReady); \
+	DECLARE_FUNCTION(execReadyToMoveAgents);
 
 
 #define GoodBots_Plugins_RealTimeMAPF_Source_RealTimeMAPF_Public_BasicAICenter_h_16_INCLASS_NO_PURE_DECLS \

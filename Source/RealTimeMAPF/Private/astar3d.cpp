@@ -26,20 +26,17 @@ void SpaceTimeSearch::ExpandNode(NodeType* node_to_expand)
     int j = cell_of_node.j;
     TTYPE t = (cell_of_node.t + 1) % MAX_TIME;
 
-    // Expand the wait move first
     ExpandNodeMove(node_to_expand, { i,     j,     t });
 
-    // Then non-diagonal moves
     ExpandNodeMove(node_to_expand, { i,     j + 1, t });
     ExpandNodeMove(node_to_expand, { i + 1, j,     t });
     ExpandNodeMove(node_to_expand, { i - 1, j,     t });
     ExpandNodeMove(node_to_expand, { i,     j - 1, t });
-    
-    // Then diagonal moves
-    ExpandNodeMove(node_to_expand, { i + 1, j + 1, t } );
+
+    ExpandNodeMove(node_to_expand, { i + 1, j + 1, t });
     ExpandNodeMove(node_to_expand, { i + 1, j - 1, t });
-    ExpandNodeMove(node_to_expand, { i - 1, j + 1, t } );
-    ExpandNodeMove(node_to_expand, { i - 1, j - 1, t } );
+    ExpandNodeMove(node_to_expand, { i - 1, j + 1, t });
+    ExpandNodeMove(node_to_expand, { i - 1, j - 1, t });
 }
 
 FTYPE SpaceTimeSearch::GetMoveCost(SpaceTimeCell from, SpaceTimeCell to) const
@@ -142,6 +139,20 @@ const Node<SpaceTimeCell>* SpaceTimeSearch::CellIsReached(SpaceTimeCell cell) co
     }
 }
 
+bool SpaceTimeSearch::BreakGTie(NodeType* expanded_node, NodeType* other_node) const
+{
+  float parent_delta_i = task_.goal.i - other_node->parent->cell.i;
+  float parent_delta_j = task_.goal.j - other_node->parent->cell.j;
+
+  float expnaded_delta_i = task_.goal.i - expanded_node->cell.i;
+  float expnaded_delta_j = task_.goal.j - expanded_node->cell.j;
+
+  float parent_distance = std::sqrt(parent_delta_i * parent_delta_i + parent_delta_j * parent_delta_j);
+  float expnaded_distance = std::sqrt(expnaded_delta_i * expnaded_delta_i + expnaded_delta_j * expnaded_delta_j);
+
+  return expnaded_distance < parent_distance;
+}
+
 bool SpaceTimeSearch::NodeReachedCell(NodeType* node, SpaceTimeCell cell, FTYPE depth) const
 {
     if (nullptr == node) return false;
@@ -207,10 +218,10 @@ bool SpaceTimeSearch::IsWaitCollision(SpaceTimeCell from) const
     {
         TTYPE future_time = (from.t + 1) % MAX_TIME;
 
-        enum Move down_left_move = SpaceTimeSearch::GetMove({ from.i, from.j + 1 }, { from.i + 1, from.j });
-        enum Move down_right_move = SpaceTimeSearch::GetMove({ from.i, from.j - 1 }, { from.i + 1, from.j });
-        enum Move up_left_move = SpaceTimeSearch::GetMove({ from.i, from.j + 1 }, { from.i - 1, from.j });
-        enum Move up_right_move = SpaceTimeSearch::GetMove({ from.i, from.j - 1 }, { from.i - 1, from.j });
+        enum Move down_left_move = SpaceTimeSearch::GetMove({ 0, 1 }, { 1, 0 });
+        enum Move down_right_move = SpaceTimeSearch::GetMove({ 0, -1 }, { 1, 0 });
+        enum Move up_left_move = SpaceTimeSearch::GetMove({ 0, 1 }, { -1, 0 });
+        enum Move up_right_move = SpaceTimeSearch::GetMove({ 0, -1 }, { -1, 0 });
 
         if (IsStored({ from.i, from.j + 1, future_time }, down_right_move, up_right_move)) return true;
         if (IsStored({ from.i - 1, from.j, future_time }, up_left_move, up_right_move)) return true;
@@ -230,7 +241,7 @@ bool SpaceTimeSearch::IsDiagonalCollision(SpaceTimeCell from, SpaceTimeCell to) 
     int delta_j = to.j - from.j;
     int delta_i = to.i - from.i;
 
-    // additional diagonal check
+    // diagonal check
     SpaceTimeCell vdiag1 = { from.i, from.j + delta_j, to.t };
     SpaceTimeCell vdiag2 = { from.i + delta_i, from.j, to.t };
 
@@ -243,8 +254,8 @@ bool SpaceTimeSearch::IsDiagonalCollision(SpaceTimeCell from, SpaceTimeCell to) 
         if (IsStored({ from.i, from.j - delta_j, to.t }, reverse_move)) return true;
         if (IsStored({ from.i - delta_i, from.j, to.t }, reverse_move)) return true;
 
-        if (IsStored({ from.i + delta_i, from.j, to.t }, Wait, reverse_move)) return true;
-        if (IsStored({ from.i, from.j + delta_j, to.t }, Wait, reverse_move)) return true;
+        if (IsStored(vdiag2, Wait, reverse_move)) return true;
+        if (IsStored(vdiag1, Wait, reverse_move)) return true;
     }
 
     // Close diagonal move
@@ -282,6 +293,7 @@ bool SpaceTimeSearch::IsNondiagonalCollision(SpaceTimeCell from, SpaceTimeCell t
 
         if (IsStored({ to.i + perp_delta_i, to.j + perp_delta_j, to.t }, up_move)) return true;
         if (IsStored({ to.i - perp_delta_i, to.j - perp_delta_j, to.t }, down_move)) return true;
+        if (IsStored({ from.i, from.j, to.t }, up_move, down_move)) return true;
     }
 
     return false;

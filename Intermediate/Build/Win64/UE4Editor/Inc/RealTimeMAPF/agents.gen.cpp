@@ -45,6 +45,11 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFAgentTask
 #endif
 		static void* NewStructOps();
 #if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_IsValid_MetaData[];
+#endif
+		static void NewProp_IsValid_SetBit(void* Obj);
+		static const UE4CodeGen_Private::FBoolPropertyParams NewProp_IsValid;
+#if WITH_METADATA
 		static const UE4CodeGen_Private::FMetaDataPairParam NewProp_GoalT_MetaData[];
 #endif
 		static const UE4CodeGen_Private::FIntPropertyParams NewProp_GoalT;
@@ -81,6 +86,16 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFAgentTask
 	{
 		return (UScriptStruct::ICppStructOps*)new UScriptStruct::TCppStructOps<FAgentTask>();
 	}
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_IsValid_MetaData[] = {
+		{ "ModuleRelativePath", "Public/agents.h" },
+	};
+#endif
+	void Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_IsValid_SetBit(void* Obj)
+	{
+		((FAgentTask*)Obj)->IsValid = 1;
+	}
+	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_IsValid = { "IsValid", nullptr, (EPropertyFlags)0x0010000000000000, UE4CodeGen_Private::EPropertyGenFlags::Bool , RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(uint8), sizeof(FAgentTask), &Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_IsValid_SetBit, METADATA_PARAMS(Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_IsValid_MetaData, UE_ARRAY_COUNT(Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_IsValid_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_GoalT_MetaData[] = {
 		{ "Category", "AgentTask" },
@@ -124,6 +139,7 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFAgentTask
 #endif
 	const UE4CodeGen_Private::FIntPropertyParams Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_StartX = { "StartX", nullptr, (EPropertyFlags)0x0010000000000005, UE4CodeGen_Private::EPropertyGenFlags::Int, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(FAgentTask, StartX), METADATA_PARAMS(Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_StartX_MetaData, UE_ARRAY_COUNT(Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_StartX_MetaData)) };
 	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UScriptStruct_FAgentTask_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_IsValid,
 		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_GoalT,
 		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_GoalY,
 		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UScriptStruct_FAgentTask_Statics::NewProp_GoalX,
@@ -159,7 +175,7 @@ static struct FScriptStruct_RealTimeMAPF_StaticRegisterNativesFAgentTask
 		}
 		return ReturnStruct;
 	}
-	uint32 Get_Z_Construct_UScriptStruct_FAgentTask_Hash() { return 2941859895U; }
+	uint32 Get_Z_Construct_UScriptStruct_FAgentTask_Hash() { return 81780357U; }
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 #ifdef _MSC_VER
 #pragma warning (pop)

@@ -33,8 +33,9 @@
 /NODEFAULTLIB:"LIBCD"
 /NODEFAULTLIB:"LIBCPD"
 /FUNCTIONPADMIN
-"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Intermediate\Build\Win64\GoodBotsEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
-"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\RealTimeMAPF.cpp.obj"
+"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Intermediate\Build\Win64\GoodBotsEditor\Development\Engine\SharedPCH.Engine.NonOptimized.ShadowErrors.h.obj"
+"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\Module.RealTimeMAPF.cpp.obj"
+"C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\Module.RealTimeMAPF.gen.cpp.obj"
 "C:\Users\Mitya\Documents\Unreal Projects\GoodBots\Plugins\RealTimeMAPF\Intermediate\Build\Win64\UE4Editor\Development\RealTimeMAPF\Default.rc2.res"
 "delayimp.lib"
 "wininet.lib"

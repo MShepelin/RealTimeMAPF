@@ -260,7 +260,9 @@ void EmptyLinkFunctionForGeneratedCodeMapData() {}
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UMapData_GetWidth_Statics::Function_MetaDataParams[] = {
 		{ "CallInEditor", "true" },
+		{ "Comment", "// TODO change to BlueprintImplementableEvent\n" },
 		{ "ModuleRelativePath", "Public/MapData.h" },
+		{ "ToolTip", "TODO change to BlueprintImplementableEvent" },
 	};
 #endif
 	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UMapData_GetWidth_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UMapData, nullptr, "GetWidth", nullptr, nullptr, sizeof(MapData_eventGetWidth_Parms), Z_Construct_UFunction_UMapData_GetWidth_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UMapData_GetWidth_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x5C020C00, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UMapData_GetWidth_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UMapData_GetWidth_Statics::Function_MetaDataParams)) };
@@ -376,7 +378,7 @@ void EmptyLinkFunctionForGeneratedCodeMapData() {}
 		{ &Z_Construct_UFunction_UMapData_GetHeight, "GetHeight" }, // 1830265296
 		{ &Z_Construct_UFunction_UMapData_GetLocation, "GetLocation" }, // 689884018
 		{ &Z_Construct_UFunction_UMapData_GetTimeGap, "GetTimeGap" }, // 1469202752
-		{ &Z_Construct_UFunction_UMapData_GetWidth, "GetWidth" }, // 1878677299
+		{ &Z_Construct_UFunction_UMapData_GetWidth, "GetWidth" }, // 1352300114
 		{ &Z_Construct_UFunction_UMapData_IsCellOnGrid, "IsCellOnGrid" }, // 2271830503
 		{ &Z_Construct_UFunction_UMapData_IsCellTraversable, "IsCellTraversable" }, // 3056554489
 	};
@@ -413,7 +415,7 @@ void EmptyLinkFunctionForGeneratedCodeMapData() {}
 		}
 		return OuterClass;
 	}
-	IMPLEMENT_CLASS(UMapData, 3259258067);
+	IMPLEMENT_CLASS(UMapData, 236053240);
 	template<> REALTIMEMAPF_API UClass* StaticClass<UMapData>()
 	{
 		return UMapData::StaticClass();

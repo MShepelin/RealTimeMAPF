@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MapData.h"
-#include "Grid.h"
+#include "Solver.h"
 #include "BasicAICenter.generated.h"
 
 class ABasicBot;
@@ -23,7 +23,7 @@ protected:
   TSubclassOf<ABasicBot> BotClass;
 
   UPROPERTY(EditAnywhere) 
-  AGrid* Solver;
+  ASolver* Solver;
 
   UPROPERTY(EditAnywhere, meta=(ClampMin="1"))
   int SectionSize;
@@ -40,8 +40,23 @@ protected:
   UPROPERTY()
   TArray<int> AgentIDs;
 
+  UPROPERTY()
+  uint8 AgentFinishedMovement : 1;
+
+  UPROPERTY()
+  uint8 SectionPlanFound : 1;
+
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+  UFUNCTION()
+  void ReadyToMoveAgents();
+
+  UFUNCTION()
+  void PreplanReady();
+
+  UFUNCTION()
+  void SectionReady();
 
 public:	
   // Sets default values for this actor's properties
@@ -53,16 +68,13 @@ public:
   UFUNCTION()
   void AgentFinished();
 
-  UFUNCTION(CallInEditor)
-  void SectionPlan();
-
   UFUNCTION(BlueprintCallable)
   FVector TaskToLocation(int GridX, int GridY) const;
 
   UFUNCTION(BlueprintCallable, CallInEditor)
   void BeginPlan();
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
   virtual void PostEditChangeProperty(struct FPropertyChangedEvent& Event) override;
 #endif
 };

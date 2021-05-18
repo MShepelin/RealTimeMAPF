@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BasicAICenter.h"
+#include "NavigationSystem.h"
 #include "BasicBot.h"
 
 // Sets default values
@@ -9,13 +10,23 @@ ABasicAICenter::ABasicAICenter()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
   SectionStart = 0;
+
+  SectionPlanFound = false;
+  AgentFinishedMovement = false;
 }
 
 // Called when the game starts or when spawned
-void ABasicAICenter::BeginPlay()
+void ABasicAICenter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::BeginPlay();
+	Super::EndPlay(EndPlayReason);
 	
+  for (ABasicBot* OldBot : Bots)
+  {
+    if (IsValid(OldBot))
+      OldBot->Destroy();
+  }
+
+  Bots.Empty();
 }
 
 // Called every frame
@@ -23,23 +34,28 @@ void ABasicAICenter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+  if (AgentFinishedMovement && SectionPlanFound)
+  {
+    AgentFinishedMovement = false;
+    SectionPlanFound = false;
+    ReadyToMoveAgents();
+  }
 }
 
 void ABasicAICenter::AgentFinished()
 {
-  FinishedAgents++;
+  if (AgentFinishedMovement) return; // TODO silent error
 
-  //UE_LOG(LogTemp, Warning, TEXT("HEY, FINISHED, %d / %d"), FinishedAgents, Tasks.Num());
+  FinishedAgents++;
 
   if (FinishedAgents == Tasks.Num())
   {
-    //UE_LOG(LogTemp, Warning, TEXT("REPLAN"));
     FinishedAgents = 0;
-    SectionPlan();
+    AgentFinishedMovement = true;
   }
 }
   
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 void ABasicAICenter::PostEditChangeProperty(struct FPropertyChangedEvent& Event)
 {
   FName PropertyName = (Event.Property != NULL) ? Event.Property->GetFName() : NAME_None;
@@ -51,32 +67,22 @@ void ABasicAICenter::PostEditChangeProperty(struct FPropertyChangedEvent& Event)
 
   Super::PostEditChangeProperty(Event);
 }
-#endif // WITH_EDITORONLY_DATA
+#endif // WITH_EDITOR
 
-void ABasicAICenter::SectionPlan()
+void ABasicAICenter::SectionReady()
 {
-  if (!Solver) return; // TODO silent error
-
-  //Solver->MAPFPlan();
-
-  for (int AgentIndex = 0; AgentIndex < Tasks.Num(); ++AgentIndex)
-  {
-    FAgentTask Move = Solver->MAPFGetNextMove(AgentIDs[AgentIndex]);
-
-    FVector Start = TaskToLocation(Move.StartX, Move.StartY);
-    FVector Finish = TaskToLocation(Move.GoalX, Move.GoalY);
-
-    Bots[AgentIndex]->MakeMove(Start, Finish);
-  }
-
-  Solver->MAPFMoveTime(1);
-  Solver->MAPFPlan();
+  SectionPlanFound = true;
 }
 
 void ABasicAICenter::BeginPlan()
 {
+  if (!Solver) return;
+
   FinishedAgents = 0;
   SectionStart = 0;
+
+  SectionPlanFound = false;
+  AgentFinishedMovement = false;
 
   for (ABasicBot* OldBot : Bots)
   {
@@ -89,7 +95,7 @@ void ABasicAICenter::BeginPlan()
 
   for (FAgentTask Task : Tasks)
   {
-    int AgentID = Solver->MAPFAddAgent(Task.StartX, Task.StartY, Task.GoalX, Task.GoalY);
+    int AgentID = Solver->AddAgent(Task);
     AgentIDs.Add(AgentID);
 
     FTransform BotTransform;
@@ -101,12 +107,41 @@ void ABasicAICenter::BeginPlan()
     NewBot->SetAICenter(this);
   }
 
-  // PrePlan
-  Solver->MAPFSetSectionSize(Tasks.Num());
-  Solver->MAPFPlan();
+  Solver->SetSectionSize(Tasks.Num());
+  FOnPlanReady Delegate;
+  Delegate.BindDynamic(this, &ABasicAICenter::PreplanReady);
+  Solver->Plan(Delegate);
+}
 
-  Solver->MAPFSetSectionSize(SectionSize);
-  SectionPlan();
+void ABasicAICenter::PreplanReady()
+{
+  Solver->SetSectionSize(SectionSize);
+  ReadyToMoveAgents();
+}
+
+void ABasicAICenter::ReadyToMoveAgents()
+{
+  for (int AgentIndex = 0; AgentIndex < Tasks.Num(); ++AgentIndex)
+  {
+    FAgentTask Move = Solver->GetNextMove(AgentIDs[AgentIndex]);
+
+    FVector Start = TaskToLocation(Move.StartX, Move.StartY);
+    FVector Finish = TaskToLocation(Move.GoalX, Move.GoalY);
+
+    if (!Move.IsValid)
+    {
+      UE_LOG(LogTemp, Error, TEXT("not valid move!"));
+    }
+
+    Bots[AgentIndex]->MakeMove(Start, Finish);
+  }
+
+  if (!Solver) return; // TODO silent error
+
+  Solver->MoveTime(1);
+  FOnPlanReady Delegate;
+  Delegate.BindDynamic(this, &ABasicAICenter::SectionReady);
+  Solver->Plan(Delegate);
 }
 
 FVector ABasicAICenter::TaskToLocation(int GridX, int GridY) const

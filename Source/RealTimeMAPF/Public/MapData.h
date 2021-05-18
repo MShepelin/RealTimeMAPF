@@ -21,6 +21,8 @@ class REALTIMEMAPF_API IMapData
 
 public:
 
+  // TODO change to BlueprintImplementableEvent
+
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, CallInEditor)
   int32 GetWidth() const;
   virtual int32 GetWidth_Implementation() const;

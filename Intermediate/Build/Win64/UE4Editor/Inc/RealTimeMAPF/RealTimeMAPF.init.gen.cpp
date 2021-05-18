@@ -11,18 +11,22 @@
 #endif
 PRAGMA_DISABLE_DEPRECATION_WARNINGS
 void EmptyLinkFunctionForGeneratedCodeRealTimeMAPF_init() {}
+	REALTIMEMAPF_API UFunction* Z_Construct_UDelegateFunction_RealTimeMAPF_OnPlanReady__DelegateSignature();
 	UPackage* Z_Construct_UPackage__Script_RealTimeMAPF()
 	{
 		static UPackage* ReturnPackage = nullptr;
 		if (!ReturnPackage)
 		{
+			static UObject* (*const SingletonFuncArray[])() = {
+				(UObject* (*)())Z_Construct_UDelegateFunction_RealTimeMAPF_OnPlanReady__DelegateSignature,
+			};
 			static const UE4CodeGen_Private::FPackageParams PackageParams = {
 				"/Script/RealTimeMAPF",
-				nullptr,
-				0,
+				SingletonFuncArray,
+				UE_ARRAY_COUNT(SingletonFuncArray),
 				PKG_CompiledIn | 0x00000000,
-				0x475245E5,
-				0x83ACB43B,
+				0x20C4D7A7,
+				0xF379C954,
 				METADATA_PARAMS(nullptr, 0)
 			};
 			UE4CodeGen_Private::ConstructUPackage(ReturnPackage, PackageParams);
