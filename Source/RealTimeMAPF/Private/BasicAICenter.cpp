@@ -32,13 +32,43 @@ void ABasicAICenter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 // Called every frame
 void ABasicAICenter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+  Super::Tick(DeltaTime);
 
   if (AgentFinishedMovement && SectionPlanFound)
   {
     AgentFinishedMovement = false;
     SectionPlanFound = false;
     ReadyToMoveAgents();
+  }
+
+  int AgentID;
+  while (InitedUnits.Dequeue(AgentID))
+  {
+    if (AgentID == -1)
+    {
+      UE_LOG(LogTemp, Error, TEXT("Pathplanning failed for some agent"));
+      FailedInits++;
+    }
+    else
+    {
+      UE_LOG(LogTemp, Warning, TEXT("Added agent with ID = %d"), AgentID);
+      AgentIDs.Add(AgentID);
+
+      FAgentTask AgentTask = Solver->GetTask(AgentID);
+
+      FTransform BotTransform;
+      BotTransform.SetLocation(TaskToLocation(AgentTask.StartX, AgentTask.StartY));
+
+      ABasicBot* NewBot = GetWorld()->SpawnActor<ABasicBot>(BotClass, BotTransform);
+      Bots.Add(NewBot);
+
+      NewBot->SetAICenter(this);
+    }
+
+    if (AgentIDs.Num() == Tasks.Num() - FailedInits)
+    {
+      ReadyToMoveAgents();
+    }
   }
 }
 
@@ -78,6 +108,7 @@ void ABasicAICenter::BeginPlan()
 {
   if (!Solver) return;
 
+  FailedInits = 0;
   FinishedAgents = 0;
   SectionStart = 0;
 
@@ -92,36 +123,27 @@ void ABasicAICenter::BeginPlan()
 
   Bots.Empty();
   AgentIDs.Empty();
+  AgentsDelegates.Empty();
+
+  Solver->SetSectionSize(SectionSize);
 
   for (FAgentTask Task : Tasks)
   {
-    int AgentID = Solver->AddAgent(Task);
-    AgentIDs.Add(AgentID);
+    AgentsDelegates.Add(FOnAgentReady());
+    AgentsDelegates.Last().BindDynamic(this, &ABasicAICenter::InitUnit);
 
-    FTransform BotTransform;
-    BotTransform.SetLocation(TaskToLocation(Task.StartX, Task.StartY));
-
-    ABasicBot* NewBot = GetWorld()->SpawnActor<ABasicBot>(BotClass, BotTransform);
-    Bots.Add(NewBot);
-
-    NewBot->SetAICenter(this);
+    Solver->AddAgent(Task, AgentsDelegates.Last());
   }
-
-  Solver->SetSectionSize(Tasks.Num());
-  FOnPlanReady Delegate;
-  Delegate.BindDynamic(this, &ABasicAICenter::PreplanReady);
-  Solver->Plan(Delegate);
 }
 
-void ABasicAICenter::PreplanReady()
+void ABasicAICenter::InitUnit(int AgentID)
 {
-  Solver->SetSectionSize(SectionSize);
-  ReadyToMoveAgents();
+  InitedUnits.Enqueue(AgentID);
 }
 
 void ABasicAICenter::ReadyToMoveAgents()
 {
-  for (int AgentIndex = 0; AgentIndex < Tasks.Num(); ++AgentIndex)
+  for (int AgentIndex = 0; AgentIndex < AgentIDs.Num(); ++AgentIndex)
   {
     FAgentTask Move = Solver->GetNextMove(AgentIDs[AgentIndex]);
 
@@ -153,4 +175,19 @@ FVector ABasicAICenter::TaskToLocation(int GridX, int GridY) const
   Location.Y += GridY * Gap + Gap / 2;
 
   return Location;
+}
+
+void ABasicAICenter::BeginDestroy()
+{
+  for (int AgentID : AgentIDs)
+  {
+    Solver->RemoveAgent(AgentID);
+  }
+  AgentIDs.Empty();
+
+  Bots.Empty();
+
+  AgentsDelegates.Empty();
+
+  Super::BeginDestroy();
 }

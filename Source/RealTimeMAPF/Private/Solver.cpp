@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Solver.h"
-#include "DrawDebugHelpers.h"
 
 // Sets default values
 ASolver::ASolver()
@@ -18,6 +17,7 @@ void ASolver::BeginPlay()
   SetMapData(MapDataPointer);
   MAPFSolver.SetDepth(ConstructDepth);
   MAPFSolver.SetRadius(ConstructRadius);
+  MAPFSolver.ResetConfiguration();
 }
 
 void ASolver::OnConstruction(const FTransform & Transform)
@@ -38,35 +38,12 @@ void ASolver::Tick(float DeltaTime)
     AsyncPlanner->EnsureCompletion();
     AsyncPlanner.reset();
     OnPlanReady.ExecuteIfBound();
-
-    // add new task 
-  }
-
-  {
-    FScopeTryLock SolverLock(&SolverSync);
-    if (!SolverLock.IsLocked()) return;
-
-    MAPFSolver.MoveTime(MoveTimeTask);
-    MoveTimeTask = 0;
-
-    float NewDepth;
-    while (DepthChangeTasks.Dequeue(NewDepth))
-    {
-      MAPFSolver.SetDepth(NewDepth);
-    }
-
-    int SectionSize;
-    while (SectionSizeChangeTasks.Dequeue(SectionSize))
-    {
-      if (IsCorrectSectionSize(SectionSize))
-        MAPFSolver.SetSectionSize(SectionSize);
-    }
   }
 }
 
 bool ASolver::IsCorrectSectionSize(int SectionSize) const
 {
-  int MinSize = (2 * MAPFSolver.GetAgentsNum()) / MAPFSolver.GetDepth();
+  int MinSize = (2 * MAPFSolver.GetAgentsNum() + MAPFSolver.GetDepth() - 1) / MAPFSolver.GetDepth();
   if (SectionSize < MinSize)
   {
     UE_LOG(LogTemp, Warning, TEXT("Section size must be at least %d according to the current cooperation depth"), MinSize);
@@ -77,47 +54,6 @@ bool ASolver::IsCorrectSectionSize(int SectionSize) const
 }
 
 #if WITH_EDITOR
-void ASolver::DrawDebugGrid()
-{
-  IMapData* DataPointer = (IMapData*) MapData.GetObject();
-  MapData.SetInterface(DataPointer);
-  if (!MapData.GetInterface()) return;
-
-  const UWorld * InWorld = GetWorld();
-  if (InWorld == nullptr) return;
-
-  float Gap = MapData->Execute_GetGap(MapData.GetObject());
-
-  FVector GridLocation = MapData->Execute_GetLocation(MapData.GetObject());
-  for (int32 Y = 0; Y < DataPointer->Execute_GetHeight(MapData.GetObject()); ++Y)
-  {
-    for (int32 X = 0; X < DataPointer->Execute_GetWidth(MapData.GetObject()); ++X)
-    {
-      if (!DataPointer->Execute_IsCellTraversable(MapData.GetObject(), Y, X))
-      {
-        FVector Center = { GridLocation.X + Gap * X + Gap / 2, GridLocation.Y + Gap * Y + Gap / 2, GridLocation.Z };
-        FVector Extent = { Gap / 2, Gap / 2, 0 };
-        FQuat Rotation = { 0., 0., 0., 0. };
-
-        DrawDebugSolidBox(InWorld, Center, Extent, Rotation, FColor::Green, false, 5, 0);
-      }
-    }
-  }
-
-  FVector LeftCorner = GridLocation;
-  LeftCorner.Y += MapData->Execute_GetHeight(MapData.GetObject()) * Gap;
-  FVector RightCorner = GridLocation;
-  RightCorner.X += MapData->Execute_GetWidth(MapData.GetObject()) * Gap;
-  FVector OppositeCorner = GridLocation;
-  OppositeCorner.X += MapData->Execute_GetWidth(MapData.GetObject()) * Gap;
-  OppositeCorner.Y += MapData->Execute_GetHeight(MapData.GetObject()) * Gap;
-
-  DrawDebugLine(InWorld, GridLocation, LeftCorner, FColor::Green, false, 5, 0, 4);
-  DrawDebugLine(InWorld, GridLocation, RightCorner, FColor::Green, false, 5, 0, 4);
-  DrawDebugLine(InWorld, LeftCorner, OppositeCorner, FColor::Green, false, 5, 0, 4);
-  DrawDebugLine(InWorld, RightCorner, OppositeCorner, FColor::Green, false, 5, 0, 4);
-}
-
 void ASolver::PostEditChangeProperty(struct FPropertyChangedEvent& Event)
 {
   FName PropertyName = (Event.Property != NULL) ? Event.Property->GetFName() : NAME_None;
@@ -145,24 +81,30 @@ bool ASolver::SetMapData(UObject* MapDataImplementer)
   return true;
 }
 
-int ASolver::AddAgent(FAgentTask NewAgentTask)
+void ASolver::AddAgent(FAgentTask AgentTask, FOnAgentReady OnPlanReadyDelegate)
 {
-  FScopeLock SolverLock(&SolverSync);
+  if (!GetWorld()) return;
 
-  AgentTask<SpaceTimeCell> SpaceTimeTask = {
-        {
-            NewAgentTask.StartY,
-            NewAgentTask.StartX,
-            NewAgentTask.StartT
-        },
-        {
-            NewAgentTask.GoalY,
-            NewAgentTask.GoalX,
-            -1
-        }
-  };
+  if (!MAPFSolver.GetMap())
+  {
+    UE_LOG(LogTemp, Error, TEXT("Called Solver::AddAgent, but no map was chosen"));
+    return;
+  }
 
-  return MAPFSolver.AddAgent(SpaceTimeTask);
+  (new FAutoDeleteAsyncTask<AddAgentAsyncTask>(&MAPFSolver, &SolverSync, AgentTask, OnPlanReadyDelegate))->StartBackgroundTask();
+}
+
+void ASolver::RemoveAgent(int AgentID)
+{
+  FScopeTryLock SolverLock(&SolverSync);
+  if (!SolverLock.IsLocked())
+  {
+    RemoveAgentTasks.Enqueue(AgentID);
+  }
+  else
+  {
+    MAPFSolver.RemoveAgent(AgentID);
+  }
 }
 
 bool ASolver::Plan(FOnPlanReady OnPlanReadyDelegate)
@@ -173,6 +115,32 @@ bool ASolver::Plan(FOnPlanReady OnPlanReadyDelegate)
   {
     UE_LOG(LogTemp, Error, TEXT("Called Solver::Plan, but no map was chosen"));
     return false;
+  }
+
+  {
+    FScopeLock SolverLock(&SolverSync);
+
+    MAPFSolver.MoveTime(MoveTimeTask);
+    MoveTimeTask = 0;
+
+    float NewDepth;
+    while (DepthChangeTasks.Dequeue(NewDepth))
+    {
+      MAPFSolver.SetDepth(NewDepth);
+    }
+
+    int SectionSize;
+    while (SectionSizeChangeTasks.Dequeue(SectionSize))
+    {
+      if (IsCorrectSectionSize(SectionSize))
+        MAPFSolver.SetSectionSize(SectionSize);
+    }
+
+    int AgentID;
+    while (RemoveAgentTasks.Dequeue(AgentID))
+    {
+      MAPFSolver.RemoveAgent(AgentID);
+    }
   }
 
   if (AsyncPlanner)
@@ -286,4 +254,26 @@ void ASolver::BeginDestroy()
   }
 
   Super::BeginDestroy();
+}
+
+void AddAgentAsyncTask::DoWork()
+{
+  FScopeLock SolverLock(SolverSync);
+
+  AgentTask<SpaceTimeCell> SpaceTimeTask = {
+      {
+          Task.StartY,
+          Task.StartX,
+          Task.StartT
+      },
+      {
+          Task.GoalY,
+          Task.GoalX,
+          -1
+      }
+  };
+
+  int AgentID = MAPFSolver->AddAgent(SpaceTimeTask);
+
+  AgentReady.ExecuteIfBound(AgentID);
 }

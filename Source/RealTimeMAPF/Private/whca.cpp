@@ -5,11 +5,7 @@
 WHCA::WHCA() : space_time_solver_(&space_solver_, &reservation_)
 {
   space_solver_.SetDiagonalCost(1);
-  depth_ = 64;
-  extra_time_ = 0;
-
-  search_section_ = 1;
-  current_section_ = 0;
+  enable_shuffle_ = true;
 }
 
 void WHCA::SetSectionSize(int new_section_size)
@@ -19,18 +15,27 @@ void WHCA::SetSectionSize(int new_section_size)
   current_section_ = 0;
 }
 
-// TODO change the name to reset configuration
-void WHCA::ResetConfiguration(IMapData* map, const FConfig& config, UObject* NewMapDataImplementer)
+void WHCA::ResetConfiguration()
 {
-  assert(map);
+  ResetConfiguration(map_, *config_, map_object_);
+}
+
+void WHCA::ResetConfiguration(IMapData* map, const FConfig& config, UObject* map_object)
+{
+  assert(map && map_object);
+  
+  AbandonPlan = false;
+
   tasks_.clear();
   paths_.clear();
-  agents_.Clear();
+  agents_.clear();
+  agent_ID_to_index_.clear();
+  free_agent_IDs_.clear();
 
-  space_solver_.ResetConfiguration(map, config, NewMapDataImplementer);
-  space_time_solver_.ResetConfiguration(map, config, NewMapDataImplementer);
+  space_solver_.ResetConfiguration(map, config, map_object);
+  space_time_solver_.ResetConfiguration(map, config, map_object);
 
-  MapDataImplementer = NewMapDataImplementer;
+  map_object_ = map_object;
   map_ = map;
   config_ = &config;
 }
@@ -42,173 +47,236 @@ int WHCA::AddAgent(AgentTask<SpaceTimeCell> task)
   assert(map_ && config_);
   
   task.start.t = (task.start.t + extra_time_) % MAX_TIME;
-  assert(reservation->find(task.start) == reservation->end());
 
-  int new_agent = agents_.ReserveNewID();
+  if (reservation_.find(task.start) != reservation_.end())
+  {
+    UE_LOG(LogTemp, Error, TEXT("Attempted to add an agent to an existing cell, task.start = (%d %d %d)"),
+      task.start.i, task.start.j, task.start.t);
+    return -1;
+  }
+
+  int new_agent = 0;
+  if (!free_agent_IDs_.empty())
+  {
+    new_agent = free_agent_IDs_.back();
+    free_agent_IDs_.pop_back();
+  }
+  else
+  {
+    // TODO: fix size_t -> int cast
+    new_agent = agents_.size();
+  }
+
+  agent_ID_to_index_[new_agent] = agents_.size();
+  agents_.push_back(new_agent);
+  
   tasks_.insert({ new_agent, task });
   results_.insert({ new_agent, SearchResult<SpaceTimeCell>()});
   paths_.insert({ new_agent, {} });
 
-#ifdef ENABLE_VISUAL_LOG
-  AgentColors.insert({ new_agent, CurrentColor });
+#if ENABLE_VISUAL_LOG
+  agent_colors_[new_agent] = current_color_;
 #endif // ENABLE_VISUAL_LOG
+
+  // If the agent is new and planning has already began 
+  // we need to perform planning for the new agent
+  if (!AgentPlan(new_agent, nullptr))
+  {
+    return -1;
+  }
 
   return new_agent;
 }
 
 void WHCA::RemoveAgent(int agent_ID)
 {
-  // TODO change current_section if needed
-
-  assert(agents_.IsStored(agent_ID));
+  if (agent_ID_to_index_.find(agent_ID) == agent_ID_to_index_.end()) return;
 
   ClearAgentReservation(agent_ID);
 
   tasks_.erase(agent_ID);
   paths_.erase(agent_ID);
   results_.erase(agent_ID);
-  agents_.RemoveID(agent_ID);
+
+  free_agent_IDs_.push_back(agent_ID);
+  size_t agent_index = agent_ID_to_index_[agent_ID];
+  std::swap(agents_[agent_index], agents_.back());
+  agents_.pop_back();
+
+  agent_ID_to_index_.erase(agent_ID);
+
+  size_t section_size = (search_section_ > agents_.size()) ? agents_.size() : search_section_;
+  if (!section_size)
+  {
+    current_section_ = 0;
+    return;
+  }
+
+  if (current_section_ > agent_index)
+  {
+    current_section_ = ((section_size + current_section_) - 1) % agents_.size();
+  }
+
+#if ENABLE_VISUAL_LOG
+  agent_colors_.erase(agent_ID);
+#endif // ENABLE_VISUAL_LOG
 }
 
 void WHCA::ClearAgentReservation(int agent_ID)
 {
-  assert(agents_.IsStored(agent_ID));
-
-  int counter = 0;
+  assert(agent_ID_to_index_.find(agent_ID) != agent_ID_to_index_.end());
 
   std::vector<Node<SpaceTimeCell>>& agent_path = paths_.at(agent_ID);
 
 #ifdef FULL_CHECK
-  space_time_solver_.checkpath(agent_path);
+  check(space_time_solver_.CheckPath(agent_path));
 #endif // FULL_CHECK
 
   for (size_t node_i = 0; node_i < agent_path.size(); ++node_i)
   {
     reservation_.erase(agent_path[node_i].cell);
-    counter++;
   }
 
   paths_.at(agent_ID).clear();
   results_.at(agent_ID) = {};
 }
 
-bool WHCA::Plan(const AActor *LogOwner)
+void WHCA::ShuffleAgents()
 {
-  // Build a single-agent path for each agent
-  std::vector<int> IDs = agents_.GetIDs();
-
-  int section_size = (search_section_ > IDs.size()) ? IDs.size() : search_section_;
-  if (!section_size) return true;
-
-  int current_index = current_section_;
-  current_section_ = (current_section_ + section_size) % IDs.size();
-
-  do
+  for (int shuffle_try = 0; shuffle_try < random_swaps_; ++shuffle_try)
   {
-    if (AbandonPlan)
-    {
-      AbandonPlan = false;
-      return false;
-    }
+    std::swap(agents_[rand() % agents_.size()], agents_[rand() % agents_.size()]);
+  }
+}
 
-    int agent_ID = IDs[current_index];
+bool WHCA::AgentPlan(int agent_ID, const AActor *LogOwner)
+{
+  if (AbandonPlan)
+  {
+    UE_LOG(LogTemp, Warning, TEXT("Met AbandonPlan"));
+    return false;
+  }
 
-    // Clear previous reservation
-    ClearAgentReservation(agent_ID);
+  // Clear previous reservation
+  ClearAgentReservation(agent_ID);
 
-    AgentTask<SpaceTimeCell> task = tasks_.at(agent_ID);
+  AgentTask<SpaceTimeCell> task = tasks_.at(agent_ID);
 
-    results_[agent_ID] = SearchResult<SpaceTimeCell>();
-    SearchResult<SpaceTimeCell>& result = results_[agent_ID];
+  results_[agent_ID] = SearchResult<SpaceTimeCell>();
+  SearchResult<SpaceTimeCell>& result = results_[agent_ID];
 
-    // TODO task.start.t must be in [0, max_time] and when new task added considered this extra thing 
-
-    // Check if we need to build a path on this depth
-    if (!IsBetween(task.start.t, extra_time_, (extra_time_ + depth_) % MAX_TIME))
-    {
-      // TODO Mark that path was built but it's out of boundaries
-      result.pathfound = true;
-      current_index = (current_index + 1) % IDs.size();
-      continue;
-    }
-
-    // Plan in 2d to set heuristic values and check if the path exists at all
-    GridCell start = { task.start.i, task.start.j };
-    GridCell goal = { task.goal.i, task.goal.j };
-
-#ifdef FULL_CHECK
-    UE_LOG(LogTemp, Warning, TEXT("want to plan from (%d, %d, %d) to (%d, %d)"), task.start.i, task.start.j, task.start.t, task.goal.i, task.goal.j );
-#endif
-
-    auto result_ptr = space_solver_.Plan({ goal, start });
-
-    result.time += space_solver_.GetResult().time;
-
-    if (nullptr == result_ptr)
-    {
-      reservation_.clear();
-      return false;
-    }
-
-    // Run 3d pathfinder
-    const Node<SpaceTimeCell>* node;
-    node = space_time_solver_.Plan(task, depth_);
-
-    result.time += space_time_solver_.GetResult().time;
-
-    // Check for success
-    if (nullptr == node)
-    {
-      reservation_.clear();
-      return false;
-    }
-
-    // Collect the path's data and write it in the 
-    space_time_solver_.BuildPathTo(node->cell);
-    space_time_solver_.WritePath();
-
-    // Copy the found result
-    SearchResult<SpaceTimeCell> space_time_res = space_time_solver_.GetResult();
+  // Check if we need to build a path on this depth
+  if (!IsBetween(task.start.t, extra_time_, (extra_time_ + depth_) % MAX_TIME))
+  {
+    // TODO Mark that path was built but it's out of boundaries
     result.pathfound = true;
-    result.nodescreated = space_time_res.nodescreated;
-    result.numberofsteps = space_time_res.numberofsteps;
-    result.pathlength = space_time_res.pathlength;
+    return true;
+  }
 
-    // Move the found path from the solver to paths_
-    paths_[agent_ID] = std::move(*space_time_res.lppath);
-    // First node must be in the end
-    std::reverse(paths_[agent_ID].begin(), paths_[agent_ID].end());
-    // Make sure that result struct points to correct vectors
-    result.lppath = &paths_[agent_ID];
-    result.hppath = nullptr;
+  // Plan in 2d to set heuristic values and check if the path exists at all
+  GridCell start = { task.start.i, task.start.j };
+  GridCell goal = { task.goal.i, task.goal.j };
 
-    #ifdef ENABLE_VISUAL_LOG
-    AsyncTask(ENamedThreads::GameThread, [this, LogOwner, agent_ID] {
-      // Interface implementation ensures BlueprintThreadSafe
-      FVector StartLocation = map_->Execute_GetLocation(MapDataImplementer);
-      float Gap = map_->Execute_GetGap(MapDataImplementer);
-      float TimeGap = map_->Execute_GetTimeGap(MapDataImplementer);
+  auto result_ptr = space_solver_.Plan({ goal, start });
 
-      FColor AgentColor = AgentColors[agent_ID];
-      for (Node<SpaceTimeCell> PathNode : *results_[agent_ID].lppath)
-      {
-        UE_VLOG_BOX(LogOwner, LogMAPF, Log, FBox({
-            StartLocation.X + Gap * (float)PathNode.cell.j,
-            StartLocation.Y + Gap * (float)PathNode.cell.i,
-            StartLocation.Z + TimeGap * (float)PathNode.cell.t,
-          },
+  result.time += space_solver_.GetResult().time;
+
+  if (nullptr == result_ptr)
+  {
+    UE_LOG(LogTemp, Error, TEXT("Space solver failed to plan"));
+    return false;
+  }
+
+  // Run 3d pathfinder
+  const Node<SpaceTimeCell>* node;
+  node = space_time_solver_.Plan(task, depth_);
+
+  result.time += space_time_solver_.GetResult().time;
+
+  // Check for success
+  if (nullptr == node)
+  {
+    UE_LOG(LogTemp, Error, TEXT("Space-Time solver failed to plan"));
+    return false;
+  }
+
+  // Collect the path's data and write it in the 
+  space_time_solver_.BuildPathTo(node->cell);
+  space_time_solver_.WritePath();
+
+  // Copy the found result
+  SearchResult<SpaceTimeCell> space_time_res = space_time_solver_.GetResult();
+  result.pathfound = true;
+  result.nodescreated = space_time_res.nodescreated;
+  result.numberofsteps = space_time_res.numberofsteps;
+  result.pathlength = space_time_res.pathlength;
+
+  // Move the found path from the solver to paths_
+  paths_[agent_ID] = std::move(*space_time_res.lppath);
+  // First node must be in the end
+  std::reverse(paths_[agent_ID].begin(), paths_[agent_ID].end());
+  // Make sure that result struct points to correct vectors
+  result.lppath = &paths_[agent_ID];
+  result.hppath = nullptr;
+
+#if ENABLE_VISUAL_LOG
+  AsyncTask(ENamedThreads::GameThread, [this, LogOwner, agent_ID] {
+    // Interface implementation ensures BlueprintThreadSafe
+    FVector StartLocation = map_->Execute_GetLocation(map_object_);
+    float Gap = map_->Execute_GetGap(map_object_);
+    float TimeGap = map_->Execute_GetTimeGap(map_object_);
+
+    FColor AgentColor = agent_colors_[agent_ID];
+    for (Node<SpaceTimeCell> PathNode : *results_[agent_ID].lppath)
+    {
+      UE_VLOG_BOX(LogOwner, LogMAPF, Log, FBox({
+          StartLocation.X + Gap * (float)PathNode.cell.j,
+          StartLocation.Y + Gap * (float)PathNode.cell.i,
+          StartLocation.Z + TimeGap * (float)PathNode.cell.t,
+        },
         {
           StartLocation.X + Gap * (float)PathNode.cell.j + Gap,
           StartLocation.Y + Gap * (float)PathNode.cell.i + Gap,
           StartLocation.Z + TimeGap * (float)PathNode.cell.t + TimeGap,
         }), AgentColor, TEXT(""));
-      }
+    }
 
-      UE_VLOG(LogOwner, LogMAPF, Log, TEXT("Agent ID is %d"), agent_ID);
-    });
-    #endif ENABLE_VISUAL_LOG
+    UE_VLOG(LogOwner, LogMAPF, Log, TEXT("Agent ID is %d"), agent_ID);
+  });
+#endif // ENABLE_VISUAL_LOG
 
-    current_index = (current_index + 1) % IDs.size();
+  return true;
+}
+
+bool WHCA::Plan(const AActor *LogOwner)
+{
+  size_t section_size = (search_section_ > agents_.size()) ? agents_.size() : search_section_;
+  if (!section_size)
+  {
+    current_section_ = 0;
+    return true;
+  }
+
+  size_t current_index = current_section_;
+  current_section_ = (current_section_ + section_size) % agents_.size();
+
+  if (current_index == 0 && enable_shuffle_)
+  {
+    ShuffleAgents();
+  }
+
+  do
+  {
+    int agent_ID = agents_[current_index];
+
+    if (!AgentPlan(agent_ID, LogOwner))
+    {
+      // For some reason planning was failed or abandoned, so we need to clear reservation table
+      reservation_.clear();
+      return false;
+    }
+
+    current_index = (current_index + 1) % agents_.size();
 
   } while (current_index != current_section_);
 
@@ -226,10 +294,7 @@ void WHCA::SetDepth(int new_depth)
 
   int min_depth = (2 * GetAgentsNum() + search_section_ - 1) / search_section_;
 
-  if (new_depth >= min_depth)
-  {
-    depth_ = new_depth;
-  }
+  depth_ = (new_depth >= min_depth) ? new_depth : min_depth;
 }
 
 SearchResult<SpaceTimeCell> WHCA::GetPlan(int agent_ID) const
@@ -258,8 +323,7 @@ void WHCA::MoveTime(TTYPE delta_time)
   int old_time = extra_time_;
   extra_time_ = (extra_time_ + delta_time) % MAX_TIME;
 
-  auto IDs = agents_.GetIDs();
-  for (int agent_ID : IDs)
+  for (int agent_ID : agents_)
   {
     AgentTask<SpaceTimeCell>& task = tasks_[agent_ID];
     std::vector<Node<SpaceTimeCell>>& single_path = paths_[agent_ID];
@@ -278,6 +342,7 @@ void WHCA::MoveTime(TTYPE delta_time)
       else
       {
         UE_LOG(LogTemp, Error, TEXT("Error: started agent doesn't have enough path cells planned"));
+        // TODO call some delegate to capture the error
       }
     }
   }
@@ -315,10 +380,19 @@ TArray<FAgentTask> WHCA::GetTasks() const
   for (auto& MapPiar : tasks_)
   {
     Result.Add(FAgentTask(MapPiar.second.start.j, MapPiar.second.start.i, MapPiar.second.start.t,
-      MapPiar.second.goal.j, MapPiar.second.goal.i, MapPiar.second.goal.t, true));
+      MapPiar.second.goal.j, MapPiar.second.goal.i, true));
   }
 
   return Result;
+}
+
+FAgentTask WHCA::GetTask(int agent_ID) const
+{
+  if (agent_ID_to_index_.find(agent_ID) == agent_ID_to_index_.end()) return FAgentTask();
+
+  AgentTask<SpaceTimeCell> task = tasks_.at(agent_ID);
+  return FAgentTask(task.start.j, task.start.i, task.start.t,
+    task.goal.j, task.goal.i, true);
 }
 
 bool WHCA::GetNextMove(int agent_ID, SpaceTimeCell& from, SpaceTimeCell& to) const
@@ -352,4 +426,12 @@ bool WHCA::GetNextMove(int agent_ID, SpaceTimeCell& from, SpaceTimeCell& to) con
 void WHCA::Abandon()
 {
   AbandonPlan = true;
+}
+
+void WHCA::SetShuffleMode(bool enable_shuffle, int random_swaps)
+{
+  check(random_swaps_ >= 0);
+
+  enable_shuffle_ = enable_shuffle;
+  random_swaps_ = random_swaps;
 }

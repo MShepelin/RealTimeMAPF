@@ -59,6 +59,7 @@ public:
     {
       if (agent_path.size() < 2) return true;
 
+      bool correct = true;
       for (size_t i = agent_path.size() - 1; i >= 1; --i)
       {
         SpaceTimeCell from = agent_path.at(i).cell;
@@ -68,18 +69,30 @@ public:
         {
           if (to.i == from.i && from.j == to.j)
           {
-            if (IsWaitCollision(from)) return false;
+            if (IsWaitCollision(from))
+                correct = false;
           }
           else
           {
-            if (IsNondiagonalCollision(from, to)) return false;
+            if (IsNondiagonalCollision(from, to))
+              correct = false;
           }
         }
         else
         {
-          if (options_.allowdiagonal && IsDiagonalCollision(from, to)) return false;
+          if (IsDiagonalCollision(from, to))
+            correct = false;
+        }
+
+        if (!correct)
+        {
+          UE_LOG(LogTemp, Error, TEXT("Incorrect move : (%d, %d, %d) -> (%d, %d, %d) "),
+            from.i, from.j, from.t, to.i, to.i, to.j);
+          return false;
         }
       }
+
+      return true;
     }
 #endif // FULL_CHECK
 };

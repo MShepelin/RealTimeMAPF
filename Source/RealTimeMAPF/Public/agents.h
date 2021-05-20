@@ -21,18 +21,18 @@ struct FAgentTask
   UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 StartT;
   UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 GoalX;
   UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 GoalY;
-  UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 GoalT;
+  UPROPERTY() int32 GoalT = -1;
 
   UPROPERTY() uint8 IsValid : 1;
 
   FAgentTask() : IsValid(0) {};
 
-  FAgentTask(int StartJ, int StartI, TTYPE InitStartT, int GoalJ, int GoalI, TTYPE InitGoalT, bool InitIsValid) :
+  FAgentTask(int StartJ, int StartI, TTYPE InStartT, int GoalJ, int GoalI, bool InIsValid) :
     StartX(StartJ),
     StartY(StartI),
-    StartT(InitStartT),
+    StartT(InStartT),
     GoalX(GoalJ),
     GoalY(GoalI),
-    GoalT(InitGoalT),
-    IsValid(InitIsValid) {};
+    GoalT(-1),
+    IsValid(InIsValid) {};
 };

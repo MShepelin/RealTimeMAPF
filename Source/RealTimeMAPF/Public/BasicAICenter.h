@@ -34,29 +34,26 @@ protected:
   UPROPERTY(EditAnywhere)
   TArray<FAgentTask> Tasks;
 
-  UPROPERTY()
-  TArray<ABasicBot*> Bots;
+  UPROPERTY() TArray<ABasicBot*> Bots;
 
-  UPROPERTY()
-  TArray<int> AgentIDs;
+  UPROPERTY() TArray<int> AgentIDs;
 
-  UPROPERTY()
-  uint8 AgentFinishedMovement : 1;
+  UPROPERTY() uint8 AgentFinishedMovement : 1;
 
-  UPROPERTY()
-  uint8 SectionPlanFound : 1;
+  UPROPERTY() uint8 SectionPlanFound : 1;
 
 	// Called when the game starts or when spawned
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-  UFUNCTION()
-  void ReadyToMoveAgents();
+  UFUNCTION() void ReadyToMoveAgents();
 
-  UFUNCTION()
-  void PreplanReady();
+  UFUNCTION() void SectionReady();
 
-  UFUNCTION()
-  void SectionReady();
+  UFUNCTION() void InitUnit(int AgentID);
+
+  TArray<FOnAgentReady> AgentsDelegates;
+  int FailedInits;
+  TQueue<int> InitedUnits;
 
 public:	
   // Sets default values for this actor's properties
@@ -64,6 +61,8 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+  virtual void BeginDestroy() override;
 
   UFUNCTION()
   void AgentFinished();

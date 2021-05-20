@@ -10,10 +10,13 @@
 #include "Async/AsyncWork.h"
 #include "Misc/ScopeTryLock.h"
 #include "Misc/ScopeLock.h"
+#include "agents.h"
 #include <memory>
 #include "Solver.generated.h"
 
+
 DECLARE_DYNAMIC_DELEGATE(FOnPlanReady);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnAgentReady, int, AgentID); // AgentID (==-1 if unsuccessful)
 
 class PlanAsyncTask
 {
@@ -34,6 +37,39 @@ class PlanAsyncTask
 
     MAPFSolver->Plan(LogOwner);
   }
+
+  bool CanAbandon()
+  {
+    return true;
+  }
+
+  void Abandon()
+  {
+    MAPFSolver->Abandon();
+  }
+
+  FORCEINLINE TStatId GetStatId() const
+  {
+    RETURN_QUICK_DECLARE_CYCLE_STAT(PlanAsyncTask, STATGROUP_ThreadPoolAsyncTasks);
+  }
+};
+
+class AddAgentAsyncTask
+{
+  friend class FAutoDeleteAsyncTask<AddAgentAsyncTask>;
+
+  WHCA* MAPFSolver;
+  FAgentTask Task;
+  FCriticalSection* SolverSync;
+  FOnAgentReady AgentReady;
+
+  AddAgentAsyncTask(WHCA* InMAPFSolver, FCriticalSection* InSolverSync, FAgentTask InAgentTask, FOnAgentReady InAgentReady)
+    : MAPFSolver(InMAPFSolver),
+    Task(InAgentTask),
+    SolverSync(InSolverSync),
+    AgentReady(InAgentReady) {}
+
+  void DoWork();
 
   bool CanAbandon()
   {
@@ -74,6 +110,7 @@ protected:
   int MoveTimeTask;
   TQueue<int> SectionSizeChangeTasks;
   TQueue<float> DepthChangeTasks;
+  TQueue<int> RemoveAgentTasks;
 
 public:	
 	// Sets default values for this actor's properties
@@ -97,7 +134,16 @@ public:
   UFUNCTION() bool SetMapData(UObject* MapDataImplementer);
 
   UFUNCTION(BlueprintCallable)
-  int AddAgent(FAgentTask AgentTask);
+  void AddAgent(FAgentTask AgentTask, FOnAgentReady OnPlanReadyDelegate);
+
+  UFUNCTION(BlueprintCallable)
+  FAgentTask GetTask(int AgentID) const
+  {
+    return MAPFSolver.GetTask(AgentID);
+  }
+
+  UFUNCTION(BlueprintCallable)
+  void RemoveAgent(int AgentID);
 
   UFUNCTION(BlueprintCallable)
   bool Plan(FOnPlanReady OnPlanReadyDelegate);
@@ -118,11 +164,6 @@ public:
   TArray<FAgentTask> GetAllTasks() const;
 
 #if WITH_EDITOR
-
-  UFUNCTION(BlueprintCallable, CallInEditor, meta = (DevelopmentOnly))
-    void DrawDebugGrid();
-
   virtual void PostEditChangeProperty(struct FPropertyChangedEvent& Event) override;
-
 #endif // WITH_EDITOR
 };

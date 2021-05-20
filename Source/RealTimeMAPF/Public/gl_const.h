@@ -4,6 +4,8 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogMAPF, Log, All);
 
+#define FULL_CHECK
+
 #define FTYPE double
 #define TTYPE short int
 
