@@ -38,6 +38,9 @@ protected:
 
   // If true each first planning section will start with random shuffle
   unsigned char enable_shuffle_ : 1;
+
+  // If true each first planning section will start with random shuffle
+  unsigned char last_plan_success_ : 1;
   // Number of random swaps
   int random_swaps_  = 10;
   // Depth of cooperation
@@ -50,10 +53,12 @@ protected:
   // The index in agents_ to plan with
   size_t current_section_ = 0;
 
-  FThreadSafeBool AbandonPlan{ false };
+  mutable FThreadSafeBool AbandonPlan{ false };
 
 protected:
   void ClearAgentReservation(int agent_ID);
+
+  void RestoreAgentReservation(int agent_ID);
 
   // Tries to perform planning for a single agent.
   // If the planning was successful, returns true and write the found path to the reservation table.
@@ -77,6 +82,7 @@ public:
   int GetDepth() const;
   const IMapData* GetMap() const;
   int GetAgentsNum() const;
+  const bool IsLastPlanSuccessful() const;
 
   virtual void ResetConfiguration(IMapData* map, const FConfig& config, UObject* map_object);
 
@@ -88,7 +94,7 @@ public:
 
   bool Plan(const AActor *LogOwner);
 
-  void ShuffleAgents();
+  void ShuffleAgents(size_t shuffle_region_start);
 
   SearchResult<SpaceTimeCell> GetPlan(int agent_ID) const;
 

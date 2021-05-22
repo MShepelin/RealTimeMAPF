@@ -51,7 +51,6 @@ void ABasicAICenter::Tick(float DeltaTime)
     }
     else
     {
-      UE_LOG(LogTemp, Warning, TEXT("Added agent with ID = %d"), AgentID);
       AgentIDs.Add(AgentID);
 
       FAgentTask AgentTask = Solver->GetTask(AgentID);
@@ -78,7 +77,7 @@ void ABasicAICenter::AgentFinished()
 
   FinishedAgents++;
 
-  if (FinishedAgents == Tasks.Num())
+  if (FinishedAgents == Tasks.Num() - FailedInits)
   {
     FinishedAgents = 0;
     AgentFinishedMovement = true;
@@ -102,6 +101,12 @@ void ABasicAICenter::PostEditChangeProperty(struct FPropertyChangedEvent& Event)
 void ABasicAICenter::SectionReady()
 {
   SectionPlanFound = true;
+}
+
+void ABasicAICenter::SectionFail()
+{
+  SectionPlanFound = false;
+  UE_LOG(LogTemp, Error, TEXT("Section planning failed!"));
 }
 
 void ABasicAICenter::BeginPlan()
@@ -152,7 +157,8 @@ void ABasicAICenter::ReadyToMoveAgents()
 
     if (!Move.IsValid)
     {
-      UE_LOG(LogTemp, Error, TEXT("not valid move!"));
+      UE_LOG(LogTemp, Error, TEXT("ABasicAICenter::ReadyToMoveAgents: Not valid move!"));
+      continue;
     }
 
     Bots[AgentIndex]->MakeMove(Start, Finish);
@@ -163,7 +169,10 @@ void ABasicAICenter::ReadyToMoveAgents()
   Solver->MoveTime(1);
   FOnPlanReady Delegate;
   Delegate.BindDynamic(this, &ABasicAICenter::SectionReady);
-  Solver->Plan(Delegate);
+
+  FOnPlanReady OnFailDelegate;
+  OnFailDelegate.BindDynamic(this, &ABasicAICenter::SectionFail);
+  Solver->Plan(Delegate, OnFailDelegate);
 }
 
 FVector ABasicAICenter::TaskToLocation(int GridX, int GridY) const

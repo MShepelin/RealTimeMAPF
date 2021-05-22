@@ -137,26 +137,40 @@ void WHCA::ClearAgentReservation(int agent_ID)
     reservation_.erase(agent_path[node_i].cell);
   }
 
-  paths_.at(agent_ID).clear();
-  results_.at(agent_ID) = {};
+  //paths_.at(agent_ID).clear();
+  //results_.at(agent_ID) = {};
 }
 
-void WHCA::ShuffleAgents()
+void WHCA::RestoreAgentReservation(int agent_ID)
 {
+  assert(agent_ID_to_index_.find(agent_ID) != agent_ID_to_index_.end());
+
+  std::vector<Node<SpaceTimeCell>>& agent_path = paths_.at(agent_ID);
+
+  for (size_t node_i = 0; node_i < agent_path.size(); ++node_i)
+  {
+    reservation_.insert(agent_path[node_i].cell);
+  }
+}
+
+void WHCA::ShuffleAgents(size_t shuffle_region_start)
+{
+  if (shuffle_region_start < 0 || shuffle_region_start >= agents_.size())
+  {
+    return; // TODO silent error
+  }
+
   for (int shuffle_try = 0; shuffle_try < random_swaps_; ++shuffle_try)
   {
-    std::swap(agents_[rand() % agents_.size()], agents_[rand() % agents_.size()]);
+    size_t first_index = shuffle_region_start + rand() % (agents_.size() - shuffle_region_start);
+    size_t second_index = shuffle_region_start + rand() % (agents_.size() - shuffle_region_start);
+
+    std::swap(first_index, second_index);
   }
 }
 
 bool WHCA::AgentPlan(int agent_ID, const AActor *LogOwner)
 {
-  if (AbandonPlan)
-  {
-    UE_LOG(LogTemp, Warning, TEXT("Met AbandonPlan"));
-    return false;
-  }
-
   // Clear previous reservation
   ClearAgentReservation(agent_ID);
 
@@ -169,6 +183,7 @@ bool WHCA::AgentPlan(int agent_ID, const AActor *LogOwner)
   if (!IsBetween(task.start.t, extra_time_, (extra_time_ + depth_) % MAX_TIME))
   {
     // TODO Mark that path was built but it's out of boundaries
+    check(paths_[agent_ID].size() == 0);
     result.pathfound = true;
     return true;
   }
@@ -184,6 +199,7 @@ bool WHCA::AgentPlan(int agent_ID, const AActor *LogOwner)
   if (nullptr == result_ptr)
   {
     UE_LOG(LogTemp, Error, TEXT("Space solver failed to plan"));
+    // No RestoreAgentReservation
     return false;
   }
 
@@ -197,6 +213,7 @@ bool WHCA::AgentPlan(int agent_ID, const AActor *LogOwner)
   if (nullptr == node)
   {
     UE_LOG(LogTemp, Error, TEXT("Space-Time solver failed to plan"));
+    RestoreAgentReservation(agent_ID);
     return false;
   }
 
@@ -254,33 +271,35 @@ bool WHCA::Plan(const AActor *LogOwner)
   if (!section_size)
   {
     current_section_ = 0;
-    return true;
+    last_plan_success_ = true;
+    return last_plan_success_;
   }
 
   size_t current_index = current_section_;
   current_section_ = (current_section_ + section_size) % agents_.size();
 
-  if (current_index == 0 && enable_shuffle_)
+  if (enable_shuffle_)
   {
-    ShuffleAgents();
+    ShuffleAgents(current_index);
   }
 
   do
   {
-    int agent_ID = agents_[current_index];
+    last_plan_success_ = false;
 
-    if (!AgentPlan(agent_ID, LogOwner))
+    if (AbandonPlan || !AgentPlan(agents_[current_index], LogOwner))
     {
-      // For some reason planning was failed or abandoned, so we need to clear reservation table
       reservation_.clear();
-      return false;
+      return last_plan_success_;
     }
+
+    last_plan_success_ = true;
 
     current_index = (current_index + 1) % agents_.size();
 
   } while (current_index != current_section_);
 
-  return true;
+  return last_plan_success_;
 }
 
 int WHCA::GetAgentsNum() const
@@ -399,14 +418,15 @@ bool WHCA::GetNextMove(int agent_ID, SpaceTimeCell& from, SpaceTimeCell& to) con
 {
   if (results_.find(agent_ID) == results_.end())
   {
-    UE_LOG(LogTemp, Error, TEXT("no agent"));
+    UE_LOG(LogTemp, Error, TEXT("No agent with ID = %d"), agent_ID);
     return false;
   }
-
+  
   const SearchResult<SpaceTimeCell>& result = results_.at(agent_ID);
   if (!result.lppath)
   {
-    UE_LOG(LogTemp, Error, TEXT("no path"));
+    bool abandon_status = AbandonPlan;
+    UE_LOG(LogTemp, Error, TEXT("no path, abandon = %d"), (int)abandon_status);
     return false;
   }
 
@@ -434,4 +454,9 @@ void WHCA::SetShuffleMode(bool enable_shuffle, int random_swaps)
 
   enable_shuffle_ = enable_shuffle;
   random_swaps_ = random_swaps;
+}
+
+const bool WHCA::IsLastPlanSuccessful() const
+{
+  return last_plan_success_;
 }

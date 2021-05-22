@@ -37,7 +37,18 @@ void ASolver::Tick(float DeltaTime)
   {
     AsyncPlanner->EnsureCompletion();
     AsyncPlanner.reset();
-    OnPlanReady.ExecuteIfBound();
+
+    if (MAPFSolver.IsLastPlanSuccessful())
+    {
+      OnPlanReady.ExecuteIfBound();
+    }
+    else
+    {
+      OnPlanFail.ExecuteIfBound();
+    }
+
+    OnPlanReady.Clear();
+    OnPlanFail.Clear();
   }
 }
 
@@ -107,7 +118,7 @@ void ASolver::RemoveAgent(int AgentID)
   }
 }
 
-bool ASolver::Plan(FOnPlanReady OnPlanReadyDelegate)
+bool ASolver::Plan(FOnPlanReady OnPlanReadyDelegate, FOnPlanReady OnPlanFailDelegate)
 {
   if (!GetWorld()) return false;
 
@@ -150,6 +161,7 @@ bool ASolver::Plan(FOnPlanReady OnPlanReadyDelegate)
   }
 
   OnPlanReady = OnPlanReadyDelegate;
+  OnPlanFail = OnPlanFailDelegate;
 
   AsyncPlanner = std::make_unique<FAsyncTask<PlanAsyncTask>>(&MAPFSolver, &SolverSync, this);
   AsyncPlanner->StartBackgroundTask();

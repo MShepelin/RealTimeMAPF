@@ -96,15 +96,16 @@ protected:
   WHCA MAPFSolver;
   UPROPERTY(EditAnywhere, Category = "Solver") FConfig Configuration;
 
-  UPROPERTY(EditAnywhere, Category = "Solver|Agent", meta = (ClampMin = "0.0", ClampMax = "0.425")) float ConstructRadius = 0.425;
-  UPROPERTY(EditAnywhere, Category = "Solver|Algorithm", meta = (ClampMin = "1")) int ConstructDepth = 1;
+  UPROPERTY(EditAnywhere, Category = "Solver", meta = (ClampMin = "0.0", ClampMax = "0.425")) float ConstructRadius = 0.425;
+  UPROPERTY(EditAnywhere, Category = "Solver", meta = (ClampMin = "1")) int ConstructDepth = 1;
 
-  UPROPERTY(EditAnywhere, Category = "Solver|Environment", meta=(AllowedClasses=MapData)) AActor* MapDataPointer;
+  UPROPERTY(EditAnywhere, Category = "Solver", meta=(AllowedClasses=MapData)) AActor* MapDataPointer;
   UPROPERTY() TScriptInterface<IMapData> MapData;
 
   mutable FCriticalSection SolverSync;
   std::unique_ptr<FAsyncTask<PlanAsyncTask>> AsyncPlanner;
   FOnPlanReady OnPlanReady;
+  FOnPlanReady OnPlanFail;
 
   // Hold correct tasks to change planner options
   int MoveTimeTask;
@@ -137,16 +138,13 @@ public:
   void AddAgent(FAgentTask AgentTask, FOnAgentReady OnPlanReadyDelegate);
 
   UFUNCTION(BlueprintCallable)
-  FAgentTask GetTask(int AgentID) const
-  {
-    return MAPFSolver.GetTask(AgentID);
-  }
+  FAgentTask GetTask(int AgentID) const { return MAPFSolver.GetTask(AgentID); }
 
   UFUNCTION(BlueprintCallable)
   void RemoveAgent(int AgentID);
 
   UFUNCTION(BlueprintCallable)
-  bool Plan(FOnPlanReady OnPlanReadyDelegate);
+  bool Plan(FOnPlanReady OnPlanReadyDelegate, FOnPlanReady OnPlanFailDelegate);
 
   UFUNCTION(BlueprintCallable)
   void MoveTime(int Time);

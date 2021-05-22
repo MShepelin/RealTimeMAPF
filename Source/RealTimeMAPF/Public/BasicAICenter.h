@@ -48,6 +48,7 @@ protected:
   UFUNCTION() void ReadyToMoveAgents();
 
   UFUNCTION() void SectionReady();
+  UFUNCTION() void SectionFail();
 
   UFUNCTION() void InitUnit(int AgentID);
 
@@ -70,7 +71,7 @@ public:
   UFUNCTION(BlueprintCallable)
   FVector TaskToLocation(int GridX, int GridY) const;
 
-  UFUNCTION(BlueprintCallable, CallInEditor)
+  UFUNCTION(BlueprintCallable)
   void BeginPlan();
 
 #if WITH_EDITOR
