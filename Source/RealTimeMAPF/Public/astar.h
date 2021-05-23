@@ -15,8 +15,6 @@ protected:
 
     virtual FTYPE GetMoveCost(GridCell from, GridCell to) const override;
 
-    virtual bool BreakGTie(NodeType* expanded_node, NodeType* other_node) const override { return false; };
-
 public:
     GridSingleSearch();
 

@@ -139,20 +139,6 @@ const Node<SpaceTimeCell>* SpaceTimeSearch::CellIsReached(SpaceTimeCell cell) co
     }
 }
 
-bool SpaceTimeSearch::BreakGTie(NodeType* expanded_node, NodeType* other_node) const
-{
-  float parent_delta_i = task_.goal.i - other_node->parent->cell.i;
-  float parent_delta_j = task_.goal.j - other_node->parent->cell.j;
-
-  float expnaded_delta_i = task_.goal.i - expanded_node->cell.i;
-  float expnaded_delta_j = task_.goal.j - expanded_node->cell.j;
-
-  float parent_distance = std::sqrt(parent_delta_i * parent_delta_i + parent_delta_j * parent_delta_j);
-  float expnaded_distance = std::sqrt(expnaded_delta_i * expnaded_delta_i + expnaded_delta_j * expnaded_delta_j);
-
-  return expnaded_distance < parent_distance;
-}
-
 bool SpaceTimeSearch::NodeReachedCell(NodeType* node, SpaceTimeCell cell, FTYPE depth) const
 {
     if (nullptr == node) return false;

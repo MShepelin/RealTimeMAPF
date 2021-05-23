@@ -35,8 +35,6 @@ protected:
     // Checks possible collisions if agents waits
     bool IsWaitCollision(SpaceTimeCell from) const;
 
-    virtual bool BreakGTie(NodeType* expanded_node, NodeType* other_node) const override;
-
 public:
     float GetRadius() const;
     void SetRadius(float new_radius);
