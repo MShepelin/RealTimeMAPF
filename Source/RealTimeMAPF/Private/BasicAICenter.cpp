@@ -148,6 +148,12 @@ void ABasicAICenter::InitUnit(int AgentID)
 
 void ABasicAICenter::ReadyToMoveAgents()
 {
+  if (!Solver)
+  {
+    UE_LOG(LogTemp, Error, TEXT("ABasicAICenter::ReadyToMoveAgents: Solver can't be found!"));
+    return;
+  }
+
   for (int AgentIndex = 0; AgentIndex < AgentIDs.Num(); ++AgentIndex)
   {
     FAgentTask Move = Solver->GetNextMove(AgentIDs[AgentIndex]);
@@ -164,9 +170,8 @@ void ABasicAICenter::ReadyToMoveAgents()
     Bots[AgentIndex]->MakeMove(Start, Finish);
   }
 
-  if (!Solver) return; // TODO silent error
-
   Solver->MoveTime(1);
+
   FOnPlanReady Delegate;
   Delegate.BindDynamic(this, &ABasicAICenter::SectionReady);
 

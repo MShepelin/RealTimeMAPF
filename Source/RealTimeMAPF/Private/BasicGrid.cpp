@@ -77,6 +77,19 @@ void ABasicGrid::Inverse(int32 Y, int32 X)
   if (Y < 0 || Y >= Grid.Num() || X < 0 || X >= Grid[0].Array.Num()) return;
 
   Grid[Y].Array[X] = Grid[Y].Array[X] ? 0 : 1;
+
+#if WITH_EDITOR
+  const UWorld * InWorld = GetWorld();
+
+  float Gap = Execute_GetGap(this);
+  FVector GridLocation = Execute_GetLocation(this);
+
+  FVector Center = { GridLocation.X + Gap * X + Gap / 2, GridLocation.Y + Gap * Y + Gap / 2, GridLocation.Z };
+  FVector Extent = { Gap / 2, Gap / 2, Gap / 2 };
+  FQuat Rotation = { 0., 0., 0., 0. };
+
+  DrawDebugBox(InWorld, Center, Extent, Rotation, FColor::Green, false, 1, 0);
+#endif // WITH_EDITOR
 }
 
 void ABasicGrid::SetHeight(int32 InHeight)

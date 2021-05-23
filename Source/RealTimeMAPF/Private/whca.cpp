@@ -51,7 +51,7 @@ int WHCA::AddAgent(AgentTask<SpaceTimeCell> task)
   if (reservation_.find(task.start) != reservation_.end())
   {
     UE_LOG(LogTemp, Error, TEXT("Attempted to add an agent to an existing cell, task.start = (%d %d %d)"),
-      task.start.i, task.start.j, task.start.t);
+      task.start.j, task.start.i, task.start.t);
     return -1;
   }
 
@@ -198,7 +198,8 @@ bool WHCA::AgentPlan(int agent_ID, const AActor *LogOwner)
 
   if (nullptr == result_ptr)
   {
-    UE_LOG(LogTemp, Error, TEXT("Space solver failed to plan"));
+    UE_LOG(LogTemp, Error, TEXT("Space solver failed to plan, start = (%d, %d), goal = (%d, %d)"),
+      task.start.j, task.start.i, task.goal.j, task.goal.i);
     // No RestoreAgentReservation
     return false;
   }
@@ -212,7 +213,8 @@ bool WHCA::AgentPlan(int agent_ID, const AActor *LogOwner)
   // Check for success
   if (nullptr == node)
   {
-    UE_LOG(LogTemp, Error, TEXT("Space-Time solver failed to plan"));
+    UE_LOG(LogTemp, Error, TEXT("Space-Time solver failed to plan, start = (%d, %d, %d), goal = (%d, %d, %d)"),
+      task.start.j, task.start.i, task.start.t, task.goal.j, task.goal.i, task.goal.t);
     RestoreAgentReservation(agent_ID);
     return false;
   }
@@ -244,6 +246,8 @@ bool WHCA::AgentPlan(int agent_ID, const AActor *LogOwner)
     float TimeGap = map_->Execute_GetTimeGap(map_object_);
 
     FColor AgentColor = agent_colors_[agent_ID];
+     
+    if (!results_[agent_ID].lppath) return;
     for (Node<SpaceTimeCell> PathNode : *results_[agent_ID].lppath)
     {
       UE_VLOG_BOX(LogOwner, LogMAPF, Log, FBox({
