@@ -94,7 +94,7 @@ void SingleSearch<CellType>::ResetConfiguration(IMapData* map, const FConfig& co
         config.AllowSqueeze,
         config.AllowDiagonal,
         config.CutCorners,
-        config.MetricType
+        static_cast<uint8>(config.MetricType)
     );
 
     // Set algorithm configurations
