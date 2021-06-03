@@ -6,9 +6,10 @@ Unreal Engine 4 plugin for real-time multiagent pathfinding
 This plugin comes with different classes to help your AI to asynchronously find collision-free paths. You can look at the use scenario below clicking 
 
 <p align = "center">
+    <a href="https://youtu.be/VhIS2lLRxRg">
     <img src="./Resources/Video.jpg" 
-         href="https://youtu.be/VhIS2lLRxRg" 
          style="zoom:25%;">
+    </a>
 </p>
 
 ### Quick Start
