@@ -5,7 +5,7 @@
 WHCA::WHCA() : space_time_solver_(&space_solver_, &reservation_)
 {
   space_solver_.SetDiagonalCost(1);
-  enable_shuffle_ = true;
+  enable_shuffle_ = false;
 }
 
 void WHCA::SetSectionSize(int new_section_size)

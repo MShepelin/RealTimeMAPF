@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BasicAICenter.h"
-#include "NavigationSystem.h"
 #include "BasicBot.h"
 
 // Sets default values

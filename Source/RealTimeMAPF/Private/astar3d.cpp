@@ -3,6 +3,20 @@
 
 const FTYPE SpaceTimeSearch::cost = 1;
 
+bool SpaceTimeSearch::BreakGTie(NodeType* expanded_node, NodeType* other_node) const
+{
+  int parent_delta_i = abs(other_node->cell.i - other_node->parent->cell.i);
+  int parent_delta_j = abs(other_node->cell.j - other_node->parent->cell.j);
+
+  int expnaded_delta_i = abs(other_node->cell.i - expanded_node->cell.i);
+  int expnaded_delta_j = abs(other_node->cell.j - expanded_node->cell.j);
+
+  int parent_distance = parent_delta_i + parent_delta_j;
+  int expnaded_distance = expnaded_delta_i + expnaded_delta_j;
+
+  return expnaded_distance < parent_distance;
+}
+
 void SpaceTimeSearch::SetHeuristic(NodeType& node_to_edit)
 {
     // TODO assert if the heuristic_ found the path from goal to start

@@ -57,6 +57,9 @@ protected:
   // Otherwise returns the cost of the move
   virtual FTYPE GetMoveCost(CellType from, CellType to) const = 0;
 
+  // Returns true if a path from expanded_node is more preferable then an existing path to other_node
+  virtual bool BreakGTie(NodeType* expanded_node, NodeType* other_node) const = 0;
+
 public:
   virtual ~SingleSearch() {};
 
@@ -250,7 +253,8 @@ void SingleSearch<CellType>::ExpandNodeMove(NodeType* node_to_expand, CellType d
     }
     else if (potential_node->second.h >= 0)
     {
-        if (potential_node->second.g > node_to_expand->g + cost)
+        if ((potential_node->second.g == node_to_expand->g + cost && BreakGTie(node_to_expand, &potential_node->second)) ||
+          potential_node->second.g > node_to_expand->g + cost)
         {
             open_.DecreaseGValue(potential_node->second, node_to_expand->g + cost);
 

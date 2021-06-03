@@ -93,7 +93,9 @@ class REALTIMEMAPF_API ASolver : public AActor
   GENERATED_BODY()
 	
 protected:
+  // Core Solver
   WHCA MAPFSolver;
+
   UPROPERTY(EditAnywhere, Category = "Solver") FConfig Configuration;
 
   UPROPERTY(EditAnywhere, Category = "Solver", meta = (ClampMin = "0.0", ClampMax = "0.425")) float ConstructRadius = 0.425;
