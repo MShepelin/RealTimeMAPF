@@ -7,7 +7,7 @@ This plugin comes with different classes to help your AI to asynchronously find 
 
 <p align = "center">
     <img src="./Resources/Video.jpg" 
-         href="https://www.youtube.com/watch?v=VhIS2lLRxRg" 
+         href="https://youtu.be/VhIS2lLRxRg" 
          style="zoom:25%;">
 </p>
 
