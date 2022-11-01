@@ -82,15 +82,6 @@ Using this plugin and some assets we created an example project. Windows build c
 ![Runtime](./Resources/Runtime.png)
 
 ## What's next?
+This is just a beginning! The project forms a basis for multiagent solver inside Unreal Engine, but it can be improved to fit high industrial standards.
 
-This is just a beginning! The project forms a basis for multiagent solver inside Unreal Engine, but it can be improved to fit high industrial standards. These are some features that can be added in future:
-
-* Support of dynamic environment modifications
-* Agents with different sizes and speeds
-* Prioritization and ordering techniques
-* Traversability settings
-* Out-of-the-box targeting system
-* Integration with NavMesh
-* Advanced hierarchical search
-* Multithreaded reservation table 
-* Advanced editor UI and algorithm options
+**New RTMAPF addition is available [here](https://github.com/MShepelin/RTMAPF)**. It works faster and the code is more maintainable, but the most important feature is that **it supports agents with different shapes, speeds and movements**! This result was achieved thanks to usage of the SIPP algorithm in addition to the technology described above.
